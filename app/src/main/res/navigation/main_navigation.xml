@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:app="http://schemas.android.com/apk/res-auto"
+            xmlns:tools="http://schemas.android.com/tools" android:id="@+id/main_navigation"
+            app:startDestination="@id/entryFragment">
+
+    <fragment android:id="@+id/entryFragment" android:name="com.xormoti.taxi_in_trust.EntryFragment"
+              android:label="fragment_entry" tools:layout="@layout/fragment_entry">
+        <action android:id="@+id/action_entryFragment_to_logInFragment" app:destination="@id/logInFragment"/>
+        <action android:id="@+id/action_entryFragment_to_passenger_navigation"
+                app:destination="@id/passenger_navigation"/>
+        <action android:id="@+id/action_entryFragment_to_driver_navigation" app:destination="@id/driver_navigation"/>
+    </fragment>
+    <fragment android:id="@+id/logInFragment" android:name="com.xormoti.taxi_in_trust.LogInFragment"
+              android:label="fragment_log_in" tools:layout="@layout/fragment_log_in">
+        <action android:id="@+id/action_logInFragment_to_registerFragment2" app:destination="@id/registerFragment2"/>
+        <action android:id="@+id/action_logInFragment_to_passenger_navigation"
+                app:destination="@id/passenger_navigation"/>
+        <action android:id="@+id/action_logInFragment_to_driver_navigation" app:destination="@id/driver_navigation"/>
+    </fragment>
+    <fragment android:id="@+id/registerFragment2" android:name="com.xormoti.taxi_in_trust.RegisterFragment"
+              android:label="fragment_register" tools:layout="@layout/fragment_register"/>
+    <include app:graph="@navigation/passenger_navigation"/>
+    <include app:graph="@navigation/driver_navigation"/>
+</navigation>
