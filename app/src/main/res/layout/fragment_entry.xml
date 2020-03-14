@@ -9,8 +9,6 @@
             android:id="@+id/gotologin"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:layout_centerVertical="true"
-            tools:text="@string/go_to_login"/>
+            tools:text="@string/go_to_login" android:layout_centerInParent="true"/>
 
 </RelativeLayout>
