@@ -6,8 +6,9 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import androidx.fragment.app.Fragment
-
+import androidx.navigation.fragment.findNavController
 
 
 class LogInFragment : Fragment() {
@@ -23,8 +24,19 @@ class LogInFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_log_in, container, false)
+
+        val rootView=inflater.inflate(R.layout.fragment_log_in, container, false);
+        rootView.findViewById<Button>(R.id.login).setOnClickListener {
+            //findNavController().navigate(R.id.driver_navigation)
+            findNavController().navigate(R.id.passenger_navigation)
+
+
+        }
+        rootView.findViewById<Button>(R.id.register).setOnClickListener {
+            findNavController().navigate(R.id.action_logInFragment_to_registerFragment2)
+        }
+
+        return rootView;
     }
 
     interface OnFragmentInteractionListener {
