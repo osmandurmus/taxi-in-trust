@@ -18,8 +18,8 @@
                 app:destination="@id/passenger_navigation"/>
         <action android:id="@+id/action_logInFragment_to_driver_navigation" app:destination="@id/driver_navigation"/>
     </fragment>
-    <fragment android:id="@+id/registerFragment2" android:name="com.xormoti.taxi_in_trust.RegisterFragment"
-              android:label="fragment_register" tools:layout="@layout/fragment_register"/>
+    <fragment android:id="@+id/registerFragment2" android:name="com.xormoti.taxi_in_trust.RegisterFragmentPassenger"
+              android:label="fragment_register" tools:layout="@layout/fragment_register_passenger"/>
     <include app:graph="@navigation/passenger_navigation"/>
     <include app:graph="@navigation/driver_navigation"/>
 </navigation>

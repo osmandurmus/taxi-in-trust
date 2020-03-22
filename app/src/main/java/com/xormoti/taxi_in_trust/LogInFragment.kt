@@ -1,6 +1,5 @@
 package com.xormoti.taxi_in_trust
 
-import android.content.Context
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -26,13 +25,13 @@ class LogInFragment : Fragment() {
     ): View? {
 
         val rootView=inflater.inflate(R.layout.fragment_log_in, container, false);
-        rootView.findViewById<Button>(R.id.login).setOnClickListener {
+        rootView.findViewById<Button>(R.id.button_login).setOnClickListener {
             //findNavController().navigate(R.id.driver_navigation)
             findNavController().navigate(R.id.passenger_navigation)
 
 
         }
-        rootView.findViewById<Button>(R.id.register).setOnClickListener {
+        rootView.findViewById<Button>(R.id.button_register).setOnClickListener {
             findNavController().navigate(R.id.action_logInFragment_to_registerFragment2)
         }
 
