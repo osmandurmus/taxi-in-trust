@@ -4,6 +4,9 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="go_to_login">Geç</string>
-    <string name="register">Kayıt</string>
+    <string name="register">Kayıt Ol</string>
     <string name="login">Giriş</string>
+    <string name="name">İsim</string>
+    <string name="username">Kullanıcı Adı</string>
+    <string name="password">Şifre</string>
 </resources>
