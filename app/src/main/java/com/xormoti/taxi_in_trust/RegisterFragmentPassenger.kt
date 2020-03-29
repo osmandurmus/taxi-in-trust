@@ -1,6 +1,5 @@
 package com.xormoti.taxi_in_trust
 
-import android.content.Context
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -11,7 +10,7 @@ import androidx.fragment.app.Fragment
 
 
 
-class RegisterFragment :Fragment() {
+class RegisterFragmentPassenger :Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -23,7 +22,7 @@ class RegisterFragment :Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_register, container, false)
+        return inflater.inflate(R.layout.fragment_register_passenger, container, false)
     }
 
 

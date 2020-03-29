@@ -6,6 +6,9 @@
     <string name="register">Kayıt Ol</string>
     <string name="login">Giriş</string>
     <string name="name">İsim</string>
+    <string name="surname">Soyad</string>
+    <string name="age">Yaş</string>
+    <string name="tel">Telefon</string>
     <string name="username">Kullanıcı Adı</string>
     <string name="password">Şifre</string>
 </resources>
