@@ -31,13 +31,17 @@ dependencies {
     implementation 'androidx.constraintlayout:constraintlayout:1.1.2'
 
     //implementation 'android.arch.navigation:navigation-fragment:1.0.0'
- 
+
     implementation "androidx.navigation:navigation-fragment-ktx:$nav_version"
     implementation "androidx.navigation:navigation-ui-ktx:$nav_version"
     implementation "androidx.navigation:navigation-dynamic-features-fragment:$nav_version"
     implementation 'com.mapbox.mapboxsdk:mapbox-android-sdk:9.0.0'
 
     // Testing Navigation
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+    implementation 'com.google.android.material:material:1.0.0'
+    implementation 'androidx.annotation:annotation:1.1.0'
+    implementation 'androidx.lifecycle:lifecycle-extensions:2.0.0'
     androidTestImplementation "androidx.navigation:navigation-testing:$nav_version"
     testImplementation 'junit:junit:4.13'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
