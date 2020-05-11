@@ -3,9 +3,11 @@
         package="com.xormoti.taxi_in_trust">
 
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
             android:allowBackup="true"
+            android:name="androidx.multidex.MultiDexApplication"
             android:icon="@mipmap/ic_launcher"
             android:label="@string/app_name"
             android:roundIcon="@mipmap/ic_launcher_round"
