@@ -50,7 +50,7 @@ class MapFragment : Fragment() {
             }
         }
         val failure= OnFailureListener {
-
+                showMessageDialog()
         }
 
         uId= context?.getSharedPreferences(LoginFragment.sharedtaxiintrust,Context.MODE_PRIVATE)?.getString("uid",null)?:"";
