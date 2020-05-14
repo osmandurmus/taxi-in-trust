@@ -8,33 +8,32 @@ public class Person_ {
     }
 
     private String id;
-    private String name;
-    private String surname;
-    private int age;
-    private int phone;
+    private String fullName;
 
-    public Person_(String id, String name, String surname, int age, int phone){
+    public boolean isDriver() {
+        return isDriver;
+    }
+
+    public boolean isPassenger() {
+        return isPassenger;
+    }
+
+    private boolean isDriver=false;
+    private boolean isPassenger=false;
+    public Person_(String id, String name){
         this.id=id;
-        this.name=name;
-        this.surname=surname;
-        this.age=age;
-        this.phone=phone;
+        this.fullName =name;
+
     }
 
-    public String getName() {
-        return name;
+    public Person_(String id, String name,boolean driver, boolean passenger){
+        this.id=id;
+        this.fullName =name;
+        this.isDriver=driver;
+        this.isPassenger=passenger;
     }
 
-    public String getSurname() {
-        return surname;
+    public String getFullName() {
+        return fullName;
     }
-
-    public int getAge() {
-        return age;
-    }
-
-    public int getPhone() {
-        return phone;
-    }
-
 }

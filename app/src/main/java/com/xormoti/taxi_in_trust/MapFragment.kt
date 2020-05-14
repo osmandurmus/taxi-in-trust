@@ -1,16 +1,27 @@
 package com.xormoti.taxi_in_trust
 
+import android.app.AlertDialog
+import android.content.Context
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
+import com.google.android.gms.tasks.OnFailureListener
+import com.google.android.gms.tasks.OnSuccessListener
+import com.google.firebase.firestore.DocumentSnapshot
 import com.mapbox.mapboxsdk.Mapbox
 import com.mapbox.mapboxsdk.maps.MapView
 import com.mapbox.mapboxsdk.maps.Style
+import com.xormoti.taxi_in_trust.FireBaseTask.CollectionData.PersonDAO
+import com.xormoti.taxi_in_trust.FireBaseTask.CollectionData.Person_
+import kotlin.system.exitProcess
+
 
 class MapFragment : Fragment() {
+    lateinit var uId:String
     private lateinit var mapView: MapView
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,6 +40,21 @@ class MapFragment : Fragment() {
             mapboxMap.setStyle(Style.MAPBOX_STREETS) {
             }
         }
+        val success=OnSuccessListener<DocumentSnapshot> {
+            //it.toObject(Person_::class.java)
+            val  driver= it?.get("driver")
+            val passenger=it?.get("passenger")
+            if (driver==false && passenger==false)
+            {
+                showAlerDialog()
+            }
+        }
+        val failure= OnFailureListener {
+
+        }
+
+        uId= context?.getSharedPreferences(LoginFragment.sharedtaxiintrust,Context.MODE_PRIVATE)?.getString("uid",null)?:"";
+        PersonDAO.getUser(uId,success,failure)
     }
     interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
@@ -64,4 +90,67 @@ class MapFragment : Fragment() {
            mapView.onSaveInstanceState(outState)
         }
     }
+
+    fun showAlerDialog(){
+
+        val builder = AlertDialog.Builder(context)
+
+        // Set the alert dialog title
+        builder.setTitle("Kullanıcı Seçimi")
+
+        // Display a message on alert dialog
+        builder.setMessage("Sürücü müsünüz?")
+        builder.setCancelable(false)
+        // Set a positive button and its click listener on alert dialog
+        builder.setPositiveButton("Evet"){dialog, which ->
+
+            val success= OnSuccessListener<Void> {
+                dialog.dismiss()
+            }
+            val failure= OnFailureListener {
+                Toast.makeText(context,"Bir Hata Oluştu",Toast.LENGTH_LONG).show()
+            }
+
+
+            PersonDAO.updatePersonField(uId,"driver",true,success,failure)
+
+        }
+        builder.setNegativeButton("Hayır"){dialog,which ->
+
+            val success= OnSuccessListener<Void> {
+                dialog.dismiss()
+            }
+            val failure= OnFailureListener {
+                Toast.makeText(context,"Bir Hata Oluştu",Toast.LENGTH_LONG).show()
+            }
+            PersonDAO.updatePersonField(uId,"passenger",true,success,failure)
+
+        }
+        val dialog= builder.create()
+        dialog.show()
+
+
+    }
+
+    fun showMessageDialog(){
+
+        val builder = AlertDialog.Builder(context)
+
+        // Set the alert dialog title
+        builder.setTitle("BİLGİ")
+
+        // Display a message on alert dialog
+        builder.setMessage("BAĞLANTI HATASI")
+        builder.setCancelable(false)
+        // Set a positive button and its click listener on alert dialog
+        builder.setPositiveButton("Uygulamadan Çık"){dialog, which ->
+                exitProcess(0)
+        }
+
+        val dialog= builder.create()
+        dialog.show()
+
+
+    }
+
 }
