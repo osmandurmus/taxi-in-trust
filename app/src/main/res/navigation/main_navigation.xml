@@ -7,7 +7,7 @@
 
     <fragment
             android:id="@+id/loginFragment"
-            android:name="com.xormoti.taxi_in_trust.LoginFragment"
+            android:name="com.xormoti.taxi_in_trust.Fragments.LoginFragment"
             android:label="fragment_log_in"
             tools:layout="@layout/fragment_log_in" >
         <action
@@ -16,7 +16,12 @@
     </fragment>
     <fragment
             android:id="@+id/mapFragment"
-            android:name="com.xormoti.taxi_in_trust.MapFragment"
+            android:name="com.xormoti.taxi_in_trust.Fragments.MapFragment"
             android:label="fragment_map"
             tools:layout="@layout/fragment_map" />
+    <fragment
+            android:id="@+id/entryFragment"
+            android:name="com.xormoti.taxi_in_trust.Fragments.EntryFragment"
+            android:label="fragment_entry"
+            tools:layout="@layout/fragment_entry" />
 </navigation>

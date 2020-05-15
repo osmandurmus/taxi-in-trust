@@ -1,4 +1,4 @@
-package com.xormoti.taxi_in_trust;
+package com.xormoti.taxi_in_trust.Fragments;
 
 import android.os.Bundle;
 
@@ -7,14 +7,15 @@ import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
+
+import com.xormoti.taxi_in_trust.R;
 
 /**
  * A simple {@link Fragment} subclass.
  */
-public class TaxiRequestFragment extends Fragment {
+public class RegisterFragment extends Fragment {
 
-    public TaxiRequestFragment() {
+    public RegisterFragment() {
         // Required empty public constructor
     }
 
@@ -22,6 +23,6 @@ public class TaxiRequestFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_taxi_request,container,false);
+        return inflater.inflate(R.layout.fragment_register,container,false);
     }
 }

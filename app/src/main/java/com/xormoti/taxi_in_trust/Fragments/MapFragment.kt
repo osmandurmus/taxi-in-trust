@@ -1,7 +1,8 @@
-package com.xormoti.taxi_in_trust
+package com.xormoti.taxi_in_trust.Fragments
 
 import android.app.AlertDialog
 import android.content.Context
+import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -16,7 +17,8 @@ import com.mapbox.mapboxsdk.Mapbox
 import com.mapbox.mapboxsdk.maps.MapView
 import com.mapbox.mapboxsdk.maps.Style
 import com.xormoti.taxi_in_trust.FireBaseTask.CollectionData.PersonDAO
-import com.xormoti.taxi_in_trust.FireBaseTask.CollectionData.Person_
+import com.xormoti.taxi_in_trust.R
+import com.xormoti.taxi_in_trust.Services.UserLocationService
 import kotlin.system.exitProcess
 
 
@@ -25,7 +27,9 @@ class MapFragment : Fragment() {
     private lateinit var mapView: MapView
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        context?.let { Mapbox.getInstance(it, getString(R.string.mapbox_access_token)) };
+        context?.let {
+            Mapbox.getInstance(it, getString(R.string.mapbox_access_token)) };
+        startLocationService()
     }
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         // Inflate the layout for this fragment
@@ -33,6 +37,8 @@ class MapFragment : Fragment() {
         mapView= view.findViewById<MapView>(R.id.mapView);
         return view
     }
+
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         mapView?.onCreate(savedInstanceState)
@@ -55,10 +61,6 @@ class MapFragment : Fragment() {
 
         uId= context?.getSharedPreferences(LoginFragment.sharedtaxiintrust,Context.MODE_PRIVATE)?.getString("uid",null)?:"";
         PersonDAO.getUser(uId,success,failure)
-    }
-    interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
-        fun onFragmentInteraction(uri: Uri)
     }
     override fun onStart() {
         super.onStart()
@@ -90,7 +92,6 @@ class MapFragment : Fragment() {
            mapView.onSaveInstanceState(outState)
         }
     }
-
     fun showAlerDialog(){
 
         val builder = AlertDialog.Builder(context)
@@ -110,10 +111,7 @@ class MapFragment : Fragment() {
             val failure= OnFailureListener {
                 Toast.makeText(context,"Bir Hata Oluştu",Toast.LENGTH_LONG).show()
             }
-
-
             PersonDAO.updatePersonField(uId,"driver",true,success,failure)
-
         }
         builder.setNegativeButton("Hayır"){dialog,which ->
 
@@ -131,7 +129,6 @@ class MapFragment : Fragment() {
 
 
     }
-
     fun showMessageDialog(){
 
         val builder = AlertDialog.Builder(context)
@@ -153,4 +150,8 @@ class MapFragment : Fragment() {
 
     }
 
+    fun startLocationService(){
+        val intent = Intent(context, UserLocationService::class.java)
+        context!!.startService(intent)
+    }
 }
