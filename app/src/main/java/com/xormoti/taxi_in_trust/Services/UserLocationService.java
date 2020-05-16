@@ -18,7 +18,7 @@ import androidx.core.app.ActivityCompat;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.xormoti.taxi_in_trust.FireBaseTask.CollectionData.PersonDAO;
+import com.xormoti.taxi_in_trust.FireBaseTask.CollectionData.PersonFirebaseDAO;
 import com.xormoti.taxi_in_trust.Fragments.LoginFragment;
 
 import java.util.HashMap;
@@ -82,7 +82,7 @@ public class UserLocationService extends Service {
                     }
                 };
                 if (uId!=null)
-                PersonDAO.updatePersonField(uId,"location",locationMap,success,failure);
+                PersonFirebaseDAO.updatePersonField(uId,"location",locationMap,success,failure);
             }
 
             @Override
@@ -113,6 +113,6 @@ public class UserLocationService extends Service {
             // for ActivityCompat#requestPermissions for more details.
             return;
         }
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 3000, 0.1f, listener);
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 10000, 0.1f, listener);
     }
 }

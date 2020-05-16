@@ -1,14 +1,19 @@
 package com.xormoti.taxi_in_trust.FireBaseTask.CollectionData;
 
+import android.content.Context;
+import android.content.SharedPreferences;
+
 import androidx.annotation.NonNull;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.xormoti.taxi_in_trust.Fragments.LoginFragment;
 
-public class PersonDAO {
+public class PersonFirebaseDAO {
 
     private static FirebaseFirestore db=FirebaseFirestore.getInstance();
     public static void addPerson(Person_ person){
@@ -38,5 +43,34 @@ public class PersonDAO {
                 .update(field, value)
                 .addOnSuccessListener(success)
                 .addOnFailureListener(failure);
+    }
+
+    public static void listenForRealtimePersonLocations(EventListener listener, Context context){
+        SharedPreferences sharedPreferences;
+        sharedPreferences=context.getSharedPreferences(LoginFragment.sharedtaxiintrust,Context.MODE_PRIVATE);
+        String state=sharedPreferences.getString("state",null);
+
+        switch (state){
+
+            case "driver": // driver ise passengerlar gelecek. çünkü ulaşım için driver passenger arar, passenger driver arar.
+                db.collection("person")
+                        .whereEqualTo("passenger",true)
+                        .addSnapshotListener(listener);
+                break;
+            case "passenger":
+                db.collection("person")
+                        .whereEqualTo("driver",true)
+                        .addSnapshotListener(listener);
+                break;
+            default:
+                break;
+
+        }
+
+
+
+        /*db.collection("person")
+                .whereEqualTo("location",)
+                .addSnapshotListener(listener);*/
     }
 }
