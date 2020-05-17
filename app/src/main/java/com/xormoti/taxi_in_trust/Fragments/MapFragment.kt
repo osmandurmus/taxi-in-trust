@@ -3,6 +3,7 @@ package com.xormoti.taxi_in_trust.Fragments
 import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
+import android.location.LocationManager
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -15,28 +16,35 @@ import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.EventListener
 import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.firestore.QuerySnapshot
+import com.google.type.LatLng
 import com.mapbox.mapboxsdk.Mapbox
+import com.mapbox.mapboxsdk.annotations.MarkerOptions
 import com.mapbox.mapboxsdk.maps.MapView
+import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.Style
 import com.xormoti.taxi_in_trust.FireBaseTask.CollectionData.Location_
 import com.xormoti.taxi_in_trust.FireBaseTask.CollectionData.PersonFirebaseDAO
 import com.xormoti.taxi_in_trust.FireBaseTask.CollectionData.Person_
 import com.xormoti.taxi_in_trust.R
 import com.xormoti.taxi_in_trust.Services.UserLocationService
-import java.lang.Exception
-import java.util.HashMap
+import java.util.*
+import kotlin.collections.ArrayList
 import kotlin.system.exitProcess
 
 
 class MapFragment : Fragment() {
     lateinit var  persons:ArrayList<Person_>
     lateinit var uId:String
+    lateinit var map:MapboxMap
+
     private lateinit var mapView: MapView
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         context?.let {
             Mapbox.getInstance(it, getString(R.string.mapbox_access_token)) };
         startLocationService()
+
+
     }
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         // Inflate the layout for this fragment
@@ -50,6 +58,7 @@ class MapFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         mapView?.onCreate(savedInstanceState)
         mapView?.getMapAsync { mapboxMap ->
+            map=mapboxMap
             mapboxMap.setStyle(Style.MAPBOX_STREETS) {
             }
         }
@@ -64,23 +73,25 @@ class MapFragment : Fragment() {
                     }
 
                     persons = ArrayList<Person_>()
+                    map.clear()
                     for (doc in p0!!) {
 
                         val pdriver=doc.getBoolean("driver")
                         val ppassenger=doc.getBoolean("passenger")
                         val pfullName=doc.getString("fullName")
                         val pid=doc.getString("id")
-
                         val plocation=doc.get("location")
-
-
                         val pLatitude=(plocation as HashMap<String,Double>).get("latitude")
                         val pLongitude=plocation.get("longitude")
-
-
                         val person_=Person_(pid,pfullName,pdriver as Boolean,ppassenger as Boolean)
                         val location_=Location_(pLatitude as Double,pLongitude as Double)
                         person_.location_=location_
+                        map.addMarker(
+                            MarkerOptions()
+                                .position(com.mapbox.mapboxsdk.geometry.LatLng(pLatitude,pLongitude))
+                                .title(pfullName)
+                        )
+
                         persons.add(person_)
                     }
                 }
