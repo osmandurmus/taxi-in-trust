@@ -43,6 +43,7 @@ public class MainActivity extends AppCompatActivity implements MenuItem.OnMenuIt
             case R.id.logout_item_menu:
                 break;
             default:
+                return false; ///işlemleri yap
                 break;
 
 
