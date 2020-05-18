@@ -36,6 +36,7 @@ class MapFragment : Fragment() {
     lateinit var  persons:ArrayList<Person_>
     lateinit var uId:String
     lateinit var map:MapboxMap
+    lateinit var intent:Intent
 
     private lateinit var mapView: MapView
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -222,9 +223,18 @@ class MapFragment : Fragment() {
 
 
     }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        stopLocationService()
+    }
     fun startLocationService(){
-        val intent = Intent(context, UserLocationService::class.java)
+        intent = Intent(context, UserLocationService::class.java)
         context!!.startService(intent)
+    }
+    fun stopLocationService(){
+        if(intent!=null)
+            context!!.stopService(intent)
     }
 
 }

@@ -1,27 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        xmlns:tools="http://schemas.android.com/tools"
-        android:id="@+id/main_navigation"
-        app:startDestination="@id/loginFragment">
+xmlns:app="http://schemas.android.com/apk/res-auto"
+xmlns:tools="http://schemas.android.com/tools"
+android:id="@+id/main_navigation"
+app:startDestination="@id/entryFragment">
 
-    <fragment
-            android:id="@+id/loginFragment"
-            android:name="com.xormoti.taxi_in_trust.Fragments.LoginFragment"
-            android:label="fragment_log_in"
-            tools:layout="@layout/fragment_log_in" >
-        <action
-                android:id="@+id/action_loginFragment_to_mapFragment"
-                app:destination="@id/mapFragment" />
-    </fragment>
-    <fragment
-            android:id="@+id/mapFragment"
-            android:name="com.xormoti.taxi_in_trust.Fragments.MapFragment"
-            android:label="fragment_map"
-            tools:layout="@layout/fragment_map" />
-    <fragment
-            android:id="@+id/entryFragment"
-            android:name="com.xormoti.taxi_in_trust.Fragments.EntryFragment"
-            android:label="fragment_entry"
-            tools:layout="@layout/fragment_entry" />
+<fragment
+        android:id="@+id/loginFragment"
+        android:name="com.xormoti.taxi_in_trust.Fragments.LoginFragment"
+        android:label="Giriş"
+        tools:layout="@layout/fragment_login" >
+    <action
+            android:id="@+id/action_loginFragment_to_mapFragment"
+            app:destination="@id/mapFragment" />
+</fragment>
+<fragment
+        android:id="@+id/mapFragment"
+        android:name="com.xormoti.taxi_in_trust.Fragments.MapFragment"
+        android:label="Harita"
+        tools:layout="@layout/fragment_map" />
+<fragment
+        android:id="@+id/entryFragment"
+        android:name="com.xormoti.taxi_in_trust.Fragments.EntryFragment"
+        android:label="Hoşgeldin"
+        tools:layout="@layout/fragment_entry" >
+    <action
+            android:id="@+id/action_entryFragment_to_loginFragment"
+            app:destination="@id/loginFragment" />
+</fragment>
 </navigation>

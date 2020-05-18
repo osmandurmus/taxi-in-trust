@@ -44,6 +44,16 @@ public class PersonFirebaseDAO {
                 .addOnSuccessListener(success)
                 .addOnFailureListener(failure);
     }
+    public static void addPerson(Object data,OnSuccessListener<Void> success,OnFailureListener failure){
+       try{
+           DocumentReference docRef = db.collection("person").document();
+           docRef.set(data)
+                   .addOnSuccessListener(success)
+                   .addOnFailureListener(failure);
+       }catch (Exception e){
+           e.printStackTrace();
+       }
+    }
 
     public static void listenForRealtimePersonLocations(EventListener listener, Context context){
         SharedPreferences sharedPreferences;
@@ -66,8 +76,6 @@ public class PersonFirebaseDAO {
                 break;
 
         }
-
-
 
         /*db.collection("person")
                 .whereEqualTo("location",)

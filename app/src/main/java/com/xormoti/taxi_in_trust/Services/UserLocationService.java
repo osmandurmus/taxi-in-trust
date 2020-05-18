@@ -82,7 +82,7 @@ public class UserLocationService extends Service {
                     }
                 };
                 if (uId!=null)
-                PersonFirebaseDAO.updatePersonField(uId,"location",locationMap,success,failure);
+                    PersonFirebaseDAO.updatePersonField(uId,"location",locationMap,success,failure);
             }
 
             @Override

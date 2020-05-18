@@ -2,6 +2,9 @@ package com.xormoti.taxi_in_trust.FireBaseTask.CollectionData;
 
 public class Location_ {
 
+    private double latitude; //enlem
+    private double longitude; //boylam
+
 
     public Location_(){}
 
@@ -25,9 +28,5 @@ public class Location_ {
     public void setLongitude(double longitude) {
         this.longitude = longitude;
     }
-
-    private double latitude;
-    private double longitude;
-
 
 }
