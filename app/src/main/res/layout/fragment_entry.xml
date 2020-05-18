@@ -12,5 +12,5 @@
             android:id="@+id/imageView"
             android:layout_width="257dp"
             android:layout_height="348dp"
-            android:src="@drawable/fui_idp_button_background_email" />
+            android:src="@mipmap/entry_logo"/>
 </RelativeLayout>
