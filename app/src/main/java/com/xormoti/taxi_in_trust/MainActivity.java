@@ -42,11 +42,11 @@ public class MainActivity extends AppCompatActivity implements MenuItem.OnMenuIt
         switch (item.getActionView().getId()){
             case R.id.logout_item_menu:
                 break;
-            default:
-                return false; ///işlemleri yap
-                break;
 
+            default:
+               break;
 
         }
+        return true;
     }
 }
