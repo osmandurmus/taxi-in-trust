@@ -10,8 +10,6 @@ import org.junit.Test;
 
 import java.util.HashMap;
 
-import static org.junit.Assert.*;
-
 public class PersonFirebaseDAOTest {
 
     @Test
@@ -42,7 +40,7 @@ public class PersonFirebaseDAOTest {
         };
 
 
-        PersonFirebaseDAO.addPerson(hashMap,successListener,failureListener);
+        PersonFirebaseDAO.addNewPerson(hashMap,successListener,failureListener);
     }
 
     @Test

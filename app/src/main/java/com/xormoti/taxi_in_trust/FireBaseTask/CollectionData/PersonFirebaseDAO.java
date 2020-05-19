@@ -16,21 +16,11 @@ import com.xormoti.taxi_in_trust.Fragments.LoginFragment;
 public class PersonFirebaseDAO {
 
     private static FirebaseFirestore db=FirebaseFirestore.getInstance();
-    public static void addPerson(Person_ person){
+    public static void updatePerson(Person_ person, OnSuccessListener success, OnFailureListener failure){
 
         db.collection("person").document(String.valueOf(person.getId())).set(person)
-        .addOnSuccessListener(new OnSuccessListener<Void>() {
-            @Override
-            public void onSuccess(Void aVoid) {
-
-            }
-        })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-
-                    }
-                });
+        .addOnSuccessListener(success)
+                .addOnFailureListener(failure);
     }
     public static void getUser(String Uid, OnSuccessListener<DocumentSnapshot> success,OnFailureListener failure){
         DocumentReference docRef = db.collection("person").document(Uid);
@@ -44,7 +34,7 @@ public class PersonFirebaseDAO {
                 .addOnSuccessListener(success)
                 .addOnFailureListener(failure);
     }
-    public static void addPerson(Object data,OnSuccessListener<Void> success,OnFailureListener failure){
+    public static void addNewPerson(Object data, OnSuccessListener<Void> success, OnFailureListener failure){
        try{
            DocumentReference docRef = db.collection("person").document();
            docRef.set(data)

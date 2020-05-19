@@ -1,6 +1,8 @@
 package com.xormoti.taxi_in_trust.FireBaseTask.CollectionData;
 
 
+import com.google.firebase.auth.FirebaseUser;
+
 public class Person_ {
 
 
@@ -21,6 +23,11 @@ public class Person_ {
         this.fullName =name;
 
     }
+    public Person_(FirebaseUser user){
+        this.id=user.getUid();
+        this.fullName=user.getDisplayName();
+    }
+
     public Person_(String id, String name,boolean driver, boolean passenger){
         this.id=id;
         this.fullName =name;

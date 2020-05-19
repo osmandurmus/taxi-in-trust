@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "232824377053",
+    "firebase_url": "https://taxi-in-trust-a.firebaseio.com",
+    "project_id": "taxi-in-trust-a",
+    "storage_bucket": "taxi-in-trust-a.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:232824377053:android:1bf41b43a415ca8ff11534",
+        "android_client_info": {
+          "package_name": "com.xormoti.taxi_in_trust"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "232824377053-4r663mbt7vbcqbcusvc3fvtqjjd22b55.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBRp_RYniEOrXfsuxNMC7LWUSTQR8S2UuM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "232824377053-4r663mbt7vbcqbcusvc3fvtqjjd22b55.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -39,7 +39,7 @@ public class FirebaseTest {
         };
 
 
-        PersonFirebaseDAO.addPerson(hashMap,successListener,failureListener);
+        PersonFirebaseDAO.addNewPerson(hashMap,successListener,failureListener);
 
 
     }
