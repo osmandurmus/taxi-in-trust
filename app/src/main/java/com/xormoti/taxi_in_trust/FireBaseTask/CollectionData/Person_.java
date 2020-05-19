@@ -12,7 +12,7 @@ public class Person_ {
     private String fullName;
     private boolean isDriver=false;
     private boolean isPassenger=false;
-    private Location_ location_;
+    private Location_ location;
 
     public Person_(){}
 
@@ -28,11 +28,11 @@ public class Person_ {
         this.isPassenger=passenger;
     }
 
-    public Location_ getLocation_() {
-        return location_;
+    public Location_ getLocation() {
+        return location;
     }
-    public void setLocation_(Location_ location_) {
-        this.location_ = location_;
+    public void setLocation(Location_ location) {
+        this.location = location;
     }
 
     public boolean isDriver() {

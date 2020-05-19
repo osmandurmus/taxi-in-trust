@@ -3,7 +3,6 @@ package com.xormoti.taxi_in_trust.Fragments
 import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
-import android.location.LocationManager
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -16,7 +15,6 @@ import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.EventListener
 import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.firestore.QuerySnapshot
-import com.google.type.LatLng
 import com.mapbox.mapboxsdk.Mapbox
 import com.mapbox.mapboxsdk.annotations.MarkerOptions
 import com.mapbox.mapboxsdk.maps.MapView
@@ -37,8 +35,8 @@ class MapFragment : Fragment() {
     lateinit var uId:String
     lateinit var map:MapboxMap
     lateinit var intent:Intent
-
     private lateinit var mapView: MapView
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         context?.let {
@@ -86,7 +84,7 @@ class MapFragment : Fragment() {
                         val pLongitude=plocation.get("longitude")
                         val person_=Person_(pid,pfullName,pdriver as Boolean,ppassenger as Boolean)
                         val location_=Location_(pLatitude as Double,pLongitude as Double)
-                        person_.location_=location_
+                        person_.location =location_
                         map.addMarker(
                             MarkerOptions()
                                 .position(com.mapbox.mapboxsdk.geometry.LatLng(pLatitude,pLongitude))
