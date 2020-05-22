@@ -39,8 +39,8 @@ public class LoginFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        sharedPreferences=getContext().getSharedPreferences(sharedtaxiintrust, Context.MODE_PRIVATE);
 
+        sharedPreferences=getContext().getSharedPreferences(sharedtaxiintrust, Context.MODE_PRIVATE);
         // Choose authentication providers
         List<AuthUI.IdpConfig> providers = Arrays.asList(
                 new AuthUI.IdpConfig.EmailBuilder().build());
@@ -52,7 +52,6 @@ public class LoginFragment extends Fragment {
                         .setAvailableProviders(providers)
                         .build(),
                 RC_SIGN_IN);
-
     }
 
     @Override

@@ -8,11 +8,13 @@ import androidx.navigation.NavDestination;
 import androidx.navigation.Navigation;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
 import com.xormoti.taxi_in_trust.Fragments.LoginFragment;
+import com.xormoti.taxi_in_trust.Services.UserLocationService;
 
 public class MainActivity extends AppCompatActivity{
 
@@ -38,10 +40,9 @@ public class MainActivity extends AppCompatActivity{
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
 
-
         switch (item.getItemId()){
             case R.id.logout_item_menu:
-                getBaseContext().getSharedPreferences(LoginFragment.sharedtaxiintrust, Context.MODE_PRIVATE).edit().putString("uid",null).commit();
+                //getBaseContext().getSharedPreferences(LoginFragment.sharedtaxiintrust, Context.MODE_PRIVATE).edit().putString("uid",null).commit();
                 Navigation.findNavController(MainActivity.this,R.id.nav_host_fragment).popBackStack(R.id.loginFragment,true);
                 return true;
             default:

@@ -16,7 +16,7 @@ app:startDestination="@id/entryFragment">
 </fragment>
 <fragment
         android:id="@+id/mapFragment"
-        android:name="com.xormoti.taxi_in_trust.Fragments.MapFragment"
+        android:name="com.xormoti.taxi_in_trust.Fragments.JavaMapFragment"
         android:label="Harita"
         tools:layout="@layout/fragment_map" />
 <fragment

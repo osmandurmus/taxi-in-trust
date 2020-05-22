@@ -26,7 +26,10 @@ import java.util.Map;
 
 public class UserLocationService extends Service {
     private LocationManager locationManager;
+    LocationListener listener;
     private String uId;
+    private double lat;
+    private double lng;
 
     @Nullable
     @Override
@@ -37,6 +40,13 @@ public class UserLocationService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         return super.onStartCommand(intent, flags, startId);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        locationManager.removeUpdates(listener);
+        doUserLocationPassive();
     }
 
     @Override
@@ -61,17 +71,20 @@ public class UserLocationService extends Service {
     }
     void requestLocation(){
 
-        LocationListener listener = new LocationListener() {
+         listener = new LocationListener() {
             @Override
-                public void onLocationChanged(Location location) {
+                public void onLocationChanged(final Location location) {
                 Map locationMap=new HashMap<String,Double>();
                 locationMap.put("latitude",location.getLatitude());
                 locationMap.put("longitude",location.getLongitude());
+                locationMap.put("active",true);
 
 
                 OnSuccessListener success=new OnSuccessListener() {
                     @Override
                     public void onSuccess(Object o) {
+                        lat=location.getLatitude();
+                        lng=location.getLongitude();
 
                     }
                 };
@@ -114,5 +127,27 @@ public class UserLocationService extends Service {
             return;
         }
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 10000, 0.1f, listener);
+    }
+    public void doUserLocationPassive(){
+
+        OnSuccessListener success=new OnSuccessListener() {
+            @Override
+            public void onSuccess(Object o) {
+                o.toString();
+            }
+        };
+        OnFailureListener failure=new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                e.printStackTrace();
+            }
+        };
+        HashMap<String,Object> locationMap=new HashMap<>();
+        locationMap.put("active",false);
+        locationMap.put("latitude",lat);
+        locationMap.put("longitude",lng);
+
+        if (uId!=null)
+            PersonFirebaseDAO.updatePersonField(uId,"location",locationMap,success,failure);
     }
 }

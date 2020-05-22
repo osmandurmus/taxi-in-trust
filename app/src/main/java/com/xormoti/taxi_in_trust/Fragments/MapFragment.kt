@@ -128,7 +128,7 @@ class MapFragment : Fragment() {
     }
     override fun onStop() {
         super.onStop()
-        mapView?.onStart()
+        mapView?.onStop()
     }
     override fun onDestroyView() {
         super.onDestroyView()
