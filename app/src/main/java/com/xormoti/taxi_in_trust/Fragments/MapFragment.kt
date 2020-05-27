@@ -112,7 +112,7 @@ class MapFragment : Fragment() {
                 showAlerDialog()
             }
             else{
-                PersonFirebaseDAO.listenForRealtimePersonLocations(eventListener,context)
+                PersonFirebaseDAO.listenForRealtimeDriverLocations(eventListener,context)
             }
         }
         val failure= OnFailureListener {

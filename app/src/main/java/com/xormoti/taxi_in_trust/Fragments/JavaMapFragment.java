@@ -5,10 +5,8 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -22,7 +20,6 @@ import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.BounceInterpolator;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnFailureListener;
@@ -33,11 +30,11 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.mapbox.mapboxsdk.Mapbox;
+import com.mapbox.mapboxsdk.annotations.Marker;
 import com.mapbox.mapboxsdk.annotations.MarkerOptions;
 import com.mapbox.mapboxsdk.camera.CameraPosition;
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
 import com.mapbox.mapboxsdk.geometry.LatLng;
-import com.mapbox.mapboxsdk.location.LocationComponentOptions;
 import com.mapbox.mapboxsdk.maps.MapView;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
@@ -45,8 +42,8 @@ import com.mapbox.mapboxsdk.maps.Style;
 import com.xormoti.taxi_in_trust.FireBaseTask.CollectionData.Location_;
 import com.xormoti.taxi_in_trust.FireBaseTask.CollectionData.PersonFirebaseDAO;
 import com.xormoti.taxi_in_trust.FireBaseTask.CollectionData.Person_;
+import com.xormoti.taxi_in_trust.FireBaseTask.CollectionData.TaxiRequestFirebaseDAO;
 import com.xormoti.taxi_in_trust.R;
-import com.xormoti.taxi_in_trust.Services.UserLocationService;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -69,10 +66,9 @@ public class JavaMapFragment extends Fragment {
         super.onCreate(savedInstanceState);
         Mapbox.getInstance(getContext(),getString(R.string.mapbox_access_token));
         //startLocationService(); //Konum dinleme servisinin başlatılması
-        uId= getContext().getSharedPreferences(LoginFragment.sharedtaxiintrust, Context.MODE_PRIVATE).getString("uid",null);
-
-        listenUserLocationsInFirebase();
         sharedPreferences=getContext().getSharedPreferences(LoginFragment.sharedtaxiintrust,Context.MODE_PRIVATE);
+        uId= sharedPreferences.getString("uid",null);
+
     }
 
     @Override
@@ -92,6 +88,21 @@ public class JavaMapFragment extends Fragment {
             public void onMapReady(@NonNull MapboxMap mapboxMap) {
                 map=mapboxMap;
                 mapboxMap.setStyle(Style.MAPBOX_STREETS);
+
+                map.setOnMarkerClickListener(new MapboxMap.OnMarkerClickListener() {
+                    @Override
+                    public boolean onMarkerClick(@NonNull Marker marker) {
+                        String state= sharedPreferences.getString("state",null);
+
+                        if (state.equals("driver"))
+                            return false;
+
+                        doTaxiCall(marker.getTitle(),"wait",marker.getPosition());
+                        return false;
+                    }
+
+                });
+
             }
         });
         checkUserNotPassengerAndDriver();
@@ -122,12 +133,13 @@ public class JavaMapFragment extends Fragment {
                         Object plocation=doc.get("location");
                         double pLatitude=((HashMap<String,Double>)plocation).get("latitude");
                         double pLongitude=((HashMap<String,Double>)plocation).get("longitude");
+
                         Person_ person_=new Person_(pid,pfullName,pdriver,ppassenger);
                         Location_ location_=new Location_(pLatitude,pLongitude);
                         person_.setLocation(location_);
                         map.addMarker(new MarkerOptions()
-                                        .position(new LatLng(pLatitude,pLongitude))
-                                        .title(pfullName));
+                                .position(new LatLng(pLatitude,pLongitude))
+                                .title(doc.getId()));
 
                         persons.add(person_);
                     }
@@ -140,8 +152,82 @@ public class JavaMapFragment extends Fragment {
             }
         };
 
-        PersonFirebaseDAO.listenForRealtimePersonLocations(evntEventListener,getContext());
+        PersonFirebaseDAO.listenForRealtimeDriverLocations(evntEventListener,getContext());
     }
+    void listenForRealtimeTaxiRequest(){
+        EventListener evntEventListener=new com.google.firebase.firestore.EventListener<QuerySnapshot>(){
+            @Override
+            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
+                try {
+                    if (e != null) {
+                        return;
+                    }
+                    for (final QueryDocumentSnapshot doc : queryDocumentSnapshots) {
+
+                        AlertDialog.Builder builder=new AlertDialog.Builder(getContext());
+                        builder.setTitle("TAXİ REUEST");
+                        builder.setMessage("Yeni bir İstek.");
+                        builder.setPositiveButton("KABUL", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(final DialogInterface dialog, int which) {
+
+                                HashMap<String,String> paramas=new HashMap<>();
+                                paramas.put("status", "accept");
+
+                                OnSuccessListener successListener=new OnSuccessListener() {
+                                    @Override
+                                    public void onSuccess(Object o) {
+                                        Toast.makeText(getContext(),"BAŞARILI",Toast.LENGTH_LONG).show();
+                                        listenAndFollowPersonLocation(doc.getString("passenger_id"));
+                                    }
+                                };
+                                OnFailureListener failureListener=new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        Toast.makeText(getContext(),"BAŞARISIZ",Toast.LENGTH_SHORT).show();
+                                    }
+                                };
+                                TaxiRequestFirebaseDAO.updateTaxiRequest(doc.getId(),paramas,successListener,failureListener);
+                                dialog.dismiss();
+                            }
+                        });
+                        builder.setNegativeButton("REDDET", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(final DialogInterface dialog, int which) {
+
+                                HashMap<String,String> paramas=new HashMap<>();
+                                paramas.put("status", "cancel");
+
+                                OnSuccessListener successListener=new OnSuccessListener() {
+                                    @Override
+                                    public void onSuccess(Object o) {
+                                        Toast.makeText(getContext(),"BAŞARILI",Toast.LENGTH_LONG).show();
+
+                                    }
+                                };
+                                OnFailureListener failureListener=new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        Toast.makeText(getContext(),"BAŞARISIZ",Toast.LENGTH_SHORT).show();
+                                    }
+                                };
+                                TaxiRequestFirebaseDAO.updateTaxiRequest(doc.getId(),paramas,successListener,failureListener);
+                                dialog.dismiss();
+                            }
+                        });
+                        builder.create().show();
+                    }
+                }
+                catch (Exception p){
+                    p.printStackTrace();
+                }
+            }
+        };
+        TaxiRequestFirebaseDAO.listenForRealtimeTaxiRequest(evntEventListener,uId);
+    }
+    /**
+     *
+     */
     void checkUserNotPassengerAndDriver(){
 
         OnSuccessListener successListener=new OnSuccessListener() {
@@ -155,7 +241,13 @@ public class JavaMapFragment extends Fragment {
                     userTypeSelection();
                 }
                 else{
-                    listenUserLocationsInFirebase();
+                    if (driver){
+                       // listenUserLocationsInFirebase(); driver ise passengerları haritada gösterir.  //alternatif çalışma şekli
+                        listenForRealtimeTaxiRequest();
+                    }
+                    else if (passenger){
+                        listenUserLocationsInFirebase(); //passenger ise driverları gösterirr haritada.
+                    }
                 }
             }
         };
@@ -191,7 +283,7 @@ public class JavaMapFragment extends Fragment {
                     public void onSuccess(Object o) {
                        dialog.dismiss();
                        sharedPreferences.edit().putString("state","driver").commit();
-                       listenUserLocationsInFirebase();
+                       listenForRealtimeTaxiRequest();
                     }
                 };
 
@@ -231,6 +323,67 @@ public class JavaMapFragment extends Fragment {
         });
         builder.create().show();
     }
+    void doTaxiCall(final String driverId, final String requestStatus, final LatLng driverLatLng){
+
+        AlertDialog.Builder builder =new AlertDialog.Builder(getContext());
+
+        // Set the alert dialog title
+        builder.setTitle("Taxi Çağırma");
+
+        // Display a message on alert dialog
+        builder.setMessage("Seçtiğiniz sürücüyü çağırmak istiyor musunuz?");
+        builder.setCancelable(false);
+        // Set a positive button and its click listener on alert dialog
+        builder.setPositiveButton("Evet", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(final DialogInterface dialog, int which) {
+
+
+                OnSuccessListener successListener=new OnSuccessListener() {
+                    @Override
+                    public void onSuccess(Object o) {
+                        dialog.dismiss();
+                        //TODO 1 SÜRÜCÜYE İSTEK GERÇEKLEŞTİĞİNDE HARİTA ÜSTÜNDE YAPILACAK İŞLEMLER.
+                    }
+                };
+
+                OnFailureListener failureListener=new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Toast.makeText(getContext(),"ÇAĞRI BAŞARISIZ",Toast.LENGTH_LONG).show();
+                    }
+                };
+                HashMap<String,Object> hashMap=new HashMap<>();
+                hashMap.put("driver_id",driverId);
+                hashMap.put("passenger_id",uId);
+                hashMap.put("status",requestStatus);
+
+                HashMap<String,Double> passengerLocation=new HashMap<>();
+                passengerLocation.put("latitude",lat);
+                passengerLocation.put("longitude",lng);
+
+                HashMap<String,Double> driverLocation=new HashMap<>();
+                driverLocation.put("latitude",driverLatLng.getLatitude());
+                driverLocation.put("longitude",driverLatLng.getLongitude());
+
+                hashMap.put("passenger_location",passengerLocation);
+                hashMap.put("driver_location",driverLocation);
+
+                TaxiRequestFirebaseDAO.newTaxiCall(hashMap,successListener,failureListener);
+
+
+
+            }
+        });
+
+        builder.setNegativeButton("Hayır", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(final DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+        builder.create().show();
+    }
     void showErrorDialog(){
 
         AlertDialog.Builder builder =new AlertDialog.Builder(getContext());
@@ -254,7 +407,6 @@ public class JavaMapFragment extends Fragment {
 
 
     }
-
     @Override
     public void onDestroy() {
         super.onDestroy();
@@ -304,9 +456,6 @@ public class JavaMapFragment extends Fragment {
             mapView.onSaveInstanceState(outState);
 
     }
-
-
-
     void listenAndWriteMyLocationToFirebase(){
         if (locationManager == null)
             locationManager = (LocationManager)getContext().getSystemService(Context.LOCATION_SERVICE);
@@ -386,13 +535,12 @@ public class JavaMapFragment extends Fragment {
 
         HashMap<String,Object> locationMap=new HashMap<>();
         locationMap.put("active",false);
-        locationMap.put("latitude",1);
-        locationMap.put("longitude",1);
+        locationMap.put("latitude",lat);
+        locationMap.put("longitude",lng);
 
         if (uId!=null)
             PersonFirebaseDAO.updatePersonField(uId,"location",locationMap,success,failure);
     }
-
     public void setCameraPosition(Location location){
             position = new CameraPosition.Builder()
                     .target(new LatLng(location.getLatitude(), location.getLongitude()))
@@ -402,5 +550,73 @@ public class JavaMapFragment extends Fragment {
             if (map==null)
                 return;
         map.animateCamera(CameraUpdateFactory.newCameraPosition(position), 2000);
+    }
+
+
+    /**
+     * Passenger will use
+     */
+    void listenPassengerWaitingTaxiRequest(){
+
+        EventListener evntEventListener=new com.google.firebase.firestore.EventListener<QuerySnapshot>(){
+            @Override
+            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
+                try {
+                    if (e != null) {
+                        return;
+                    }
+                    for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
+
+                        String status= doc.getString("status");
+                        if (status.equals("accept")){
+                            map.clear();
+                            Object plocation=doc.get("location");
+                            double pLatitude=((HashMap<String,Double>)plocation).get("latitude");
+                            double pLongitude=((HashMap<String,Double>)plocation).get("longitude");
+                            map.addMarker(new MarkerOptions()
+                                    .position(new LatLng(pLatitude,pLongitude)).setTitle(doc.getString("driver_id")));
+
+                        }
+                        else
+                            return;
+
+
+
+
+                    }
+                }
+                catch (Exception p){
+                    p.printStackTrace();
+                }
+
+            }
+        };
+            TaxiRequestFirebaseDAO.listenPassengerWaitingTaxiRequest(evntEventListener,uId);
+    }
+
+    void listenAndFollowPersonLocation(String paramUId){
+
+        EventListener evntEventListener=new com.google.firebase.firestore.EventListener<DocumentSnapshot>(){
+            @Override
+            public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
+
+               try {
+                   if (e!=null)
+                       return;
+
+                   map.clear();
+                   Object plocation=documentSnapshot.get("location");
+                   double pLatitude=((HashMap<String,Double>)plocation).get("latitude");
+                   double pLongitude=((HashMap<String,Double>)plocation).get("longitude");
+                   map.addMarker(new MarkerOptions()
+                           .position(new LatLng(pLatitude,pLongitude)).setTitle(documentSnapshot.getString("fullName")));
+               }
+               catch (Exception x){
+                   Toast.makeText(getContext(),x.getMessage(),Toast.LENGTH_LONG).show();
+               }
+
+            }
+        };
+        TaxiRequestFirebaseDAO.listenAndFollowPersonLocation(evntEventListener,paramUId);
     }
 }

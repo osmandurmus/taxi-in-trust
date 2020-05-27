@@ -45,7 +45,7 @@ public class PersonFirebaseDAO {
        }
     }
 
-    public static void listenForRealtimePersonLocations(EventListener listener, Context context){
+    public static void listenForRealtimeDriverLocations(EventListener listener, Context context){
         SharedPreferences sharedPreferences;
         sharedPreferences=context.getSharedPreferences(LoginFragment.sharedtaxiintrust,Context.MODE_PRIVATE);
         String state=sharedPreferences.getString("state",null);
@@ -60,15 +60,12 @@ public class PersonFirebaseDAO {
             case "passenger":
                 db.collection("person")
                         .whereEqualTo("driver",true)
+                        .whereEqualTo("location.active",true)
                         .addSnapshotListener(listener);
                 break;
             default:
                 break;
 
         }
-
-        /*db.collection("person")
-                .whereEqualTo("location",)
-                .addSnapshotListener(listener);*/
     }
 }
