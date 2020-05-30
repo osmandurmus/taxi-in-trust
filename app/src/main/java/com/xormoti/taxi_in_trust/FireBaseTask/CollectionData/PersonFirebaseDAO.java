@@ -11,11 +11,18 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.ListenerRegistration;
 import com.xormoti.taxi_in_trust.Fragments.LoginFragment;
 
 public class PersonFirebaseDAO {
 
     private static FirebaseFirestore db=FirebaseFirestore.getInstance();
+
+    public static ListenerRegistration getListenerForAllPassengersLocation() {
+        return listenerForAllPassengersLocation;
+    }
+
+    private static ListenerRegistration listenerForAllPassengersLocation;
     public static void updatePerson(Person_ person, OnSuccessListener success, OnFailureListener failure){
 
         db.collection("person").document(String.valueOf(person.getId())).set(person)
@@ -49,7 +56,6 @@ public class PersonFirebaseDAO {
         SharedPreferences sharedPreferences;
         sharedPreferences=context.getSharedPreferences(LoginFragment.sharedtaxiintrust,Context.MODE_PRIVATE);
         String state=sharedPreferences.getString("state",null);
-
         switch (state){
 
             case "driver": // driver ise passengerlar gelecek. çünkü ulaşım için driver passenger arar, passenger driver arar.
@@ -58,7 +64,7 @@ public class PersonFirebaseDAO {
                         .addSnapshotListener(listener);
                 break;
             case "passenger":
-                db.collection("person")
+                listenerForAllPassengersLocation= db.collection("person")
                         .whereEqualTo("driver",true)
                         .whereEqualTo("location.active",true)
                         .addSnapshotListener(listener);

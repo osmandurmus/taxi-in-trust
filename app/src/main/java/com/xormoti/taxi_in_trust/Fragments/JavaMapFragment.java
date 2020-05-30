@@ -17,19 +17,24 @@ import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.mapbox.mapboxsdk.Mapbox;
+import com.mapbox.mapboxsdk.annotations.Icon;
+import com.mapbox.mapboxsdk.annotations.IconFactory;
 import com.mapbox.mapboxsdk.annotations.Marker;
 import com.mapbox.mapboxsdk.annotations.MarkerOptions;
 import com.mapbox.mapboxsdk.camera.CameraPosition;
@@ -60,15 +65,25 @@ public class JavaMapFragment extends Fragment {
     private double lat;
     private double lng;
     private CameraPosition position;
+    private Icon iconDriver;
+    private Icon iconPassenger;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Mapbox.getInstance(getContext(),getString(R.string.mapbox_access_token));
-        //startLocationService(); //Konum dinleme servisinin başlatılması
-        sharedPreferences=getContext().getSharedPreferences(LoginFragment.sharedtaxiintrust,Context.MODE_PRIVATE);
-        uId= sharedPreferences.getString("uid",null);
+       try {
+           Mapbox.getInstance(getContext(),getString(R.string.mapbox_access_token));
+           //startLocationService(); //Konum dinleme servisinin başlatılması
+           sharedPreferences=getContext().getSharedPreferences(LoginFragment.sharedtaxiintrust,Context.MODE_PRIVATE);
+           uId= sharedPreferences.getString("uid",null);
 
+           IconFactory iconFactory = IconFactory.getInstance(getContext());
+           iconPassenger = iconFactory.fromResource(R.mipmap.ic_passenger);
+           iconDriver = iconFactory.fromResource(R.mipmap.ic_taxi);
+       }
+       catch (Exception e){
+           Log.e("onCreate",e.getMessage());
+       }
     }
 
     @Override
@@ -92,13 +107,22 @@ public class JavaMapFragment extends Fragment {
                 map.setOnMarkerClickListener(new MapboxMap.OnMarkerClickListener() {
                     @Override
                     public boolean onMarkerClick(@NonNull Marker marker) {
-                        String state= sharedPreferences.getString("state",null);
+                        try {
+                            String state= sharedPreferences.getString("state",null);
 
-                        if (state.equals("driver"))
+                            if (state.equals("driver")) {
+                                return false;
+                            }
+
+                            doTaxiCall(marker.getTitle(),"wait",marker.getPosition()); //Hairta tıklaması sonucu. TAxi Çağırma dialoğu açılır.
+
+                            return true;
+                        }
+                        catch (Exception e){
+                            Log.e("OnMarkerClickListener",e.getMessage());
                             return false;
+                        }
 
-                        doTaxiCall(marker.getTitle(),"wait",marker.getPosition());
-                        return false;
                     }
 
                 });
@@ -110,7 +134,7 @@ public class JavaMapFragment extends Fragment {
     }
 
     /**
-     * Driver veya passengerların konumlarının dinlenip harita üzerindde gösterilmesi
+     * Active Driverlerin passengerlra haritada gösterilmesi sağlar. canlı
      */
     void listenUserLocationsInFirebase(){
 
@@ -121,6 +145,7 @@ public class JavaMapFragment extends Fragment {
                     if (e != null) {
                         return;
                 }
+
 
                     persons =new ArrayList<Person_>();
                     map.clear(); //Haritanın temizlenmesi
@@ -137,15 +162,16 @@ public class JavaMapFragment extends Fragment {
                         Person_ person_=new Person_(pid,pfullName,pdriver,ppassenger);
                         Location_ location_=new Location_(pLatitude,pLongitude);
                         person_.setLocation(location_);
+
                         map.addMarker(new MarkerOptions()
                                 .position(new LatLng(pLatitude,pLongitude))
-                                .title(doc.getId()));
+                                .title(doc.getId()).setIcon(iconDriver));
 
                         persons.add(person_);
                     }
                 }
                 catch (Exception p){
-                    p.printStackTrace();
+                    Log.e("onEvent in listenUser",p.getMessage());
                 }
 
 
@@ -154,6 +180,11 @@ public class JavaMapFragment extends Fragment {
 
         PersonFirebaseDAO.listenForRealtimeDriverLocations(evntEventListener,getContext());
     }
+
+
+    /**
+     * Driver tarafından kullanılır. Kendisine gelen taxi requestleri dinler.
+     */
     void listenForRealtimeTaxiRequest(){
         EventListener evntEventListener=new com.google.firebase.firestore.EventListener<QuerySnapshot>(){
             @Override
@@ -177,8 +208,10 @@ public class JavaMapFragment extends Fragment {
                                 OnSuccessListener successListener=new OnSuccessListener() {
                                     @Override
                                     public void onSuccess(Object o) {
+
+
                                         Toast.makeText(getContext(),"BAŞARILI",Toast.LENGTH_LONG).show();
-                                        listenAndFollowPersonLocation(doc.getString("passenger_id"));
+                                        listenAndFollowPersonLocation(doc.getString("passenger_id"),iconPassenger);
                                     }
                                 };
                                 OnFailureListener failureListener=new OnFailureListener() {
@@ -219,35 +252,42 @@ public class JavaMapFragment extends Fragment {
                     }
                 }
                 catch (Exception p){
-                    p.printStackTrace();
+                    Log.e("onEvent in taxiRequest",p.getMessage());
                 }
             }
         };
         TaxiRequestFirebaseDAO.listenForRealtimeTaxiRequest(evntEventListener,uId);
     }
     /**
-     *
+     * Kullanıcı ilk giriş yaptığında kullanıcı bilgileri alınır ve ona göre seçim dialoğu açılır veya açılmaz.
      */
     void checkUserNotPassengerAndDriver(){
 
         OnSuccessListener successListener=new OnSuccessListener() {
             @Override
             public void onSuccess(Object o) {
-                DocumentSnapshot doc=(DocumentSnapshot) o;
-                boolean  driver= doc.getBoolean("driver");
-                boolean passenger=doc.getBoolean("passenger");
-                if (driver==false && passenger==false) //Henüz kullanıcı durumunu belli etmediyse
-                {
-                    userTypeSelection();
+                try {
+                    DocumentSnapshot doc=(DocumentSnapshot) o;
+                    boolean  driver= doc.getBoolean("driver");
+                    boolean passenger=doc.getBoolean("passenger");
+                    if (driver==false && passenger==false) //Henüz kullanıcı durumunu belli etmediyse
+                    {
+                        userTypeSelection();
+                    }
+                    else{
+                        if (driver){
+                            isExistPassenger();
+                            listenForRealtimeTaxiRequest();
+                        }
+                        else if (passenger){
+                            listenWaitingTaxiRequestOfPassenger();
+                            listenUserLocationsInFirebase(); //passenger ise driverları gösterirr haritada. //TODO
+                        }
+                    }
                 }
-                else{
-                    if (driver){
-                       // listenUserLocationsInFirebase(); driver ise passengerları haritada gösterir.  //alternatif çalışma şekli
-                        listenForRealtimeTaxiRequest();
-                    }
-                    else if (passenger){
-                        listenUserLocationsInFirebase(); //passenger ise driverları gösterirr haritada.
-                    }
+                catch (Exception e){
+                    Log.e("onSuccess in checkUs",e.getMessage());
+
                 }
             }
         };
@@ -262,6 +302,11 @@ public class JavaMapFragment extends Fragment {
 
         PersonFirebaseDAO.getUser(uId,successListener,failureListener);
     };
+
+
+    /**
+     * Kullanıcı ilk giriş yaptığında sürücü olup olmadığının belirlenmesi
+     */
     void userTypeSelection(){
 
         AlertDialog.Builder builder =new AlertDialog.Builder(getContext());
@@ -284,6 +329,7 @@ public class JavaMapFragment extends Fragment {
                        dialog.dismiss();
                        sharedPreferences.edit().putString("state","driver").commit();
                        listenForRealtimeTaxiRequest();
+                       isExistPassenger();
                     }
                 };
 
@@ -323,6 +369,14 @@ public class JavaMapFragment extends Fragment {
         });
         builder.create().show();
     }
+
+
+    /**
+     * Harita üzerinde taxiye tıklandığında  taxi çağırmak için açılacak dialog.
+     * @param driverId
+     * @param requestStatus
+     * @param driverLatLng
+     */
     void doTaxiCall(final String driverId, final String requestStatus, final LatLng driverLatLng){
 
         AlertDialog.Builder builder =new AlertDialog.Builder(getContext());
@@ -371,8 +425,6 @@ public class JavaMapFragment extends Fragment {
 
                 TaxiRequestFirebaseDAO.newTaxiCall(hashMap,successListener,failureListener);
 
-
-
             }
         });
 
@@ -404,58 +456,98 @@ public class JavaMapFragment extends Fragment {
 
         Dialog dialog= builder.create();
         dialog.show();
-
-
     }
     @Override
     public void onDestroy() {
         super.onDestroy();
-    }
-    @Override
-    public void onStart() {
-        super.onStart();
-        if (mapView!=null)
-        mapView.onStart();
-        listenAndWriteMyLocationToFirebase();
-    }
-    @Override
-    public void onStop() {
-        super.onStop();
-        if (mapView!=null)
-            mapView.onStop();
         doUserLocationPassive();
     }
     @Override
+    public void onStart() {
+        try {
+            super.onStart();
+            if (mapView!=null)
+                mapView.onStart();
+            listenAndWriteMyLocationToFirebase();
+        }
+        catch (Exception e){
+            Log.e("onStart",e.getMessage());
+        }
+    }
+    @Override
+    public void onStop() {
+        try {
+            super.onStop();
+            if (mapView!=null)
+                mapView.onStop();
+        }
+        catch (Exception e){
+            Log.e("onStop",e.getMessage());
+        }
+    }
+    @Override
     public void onDestroyView() {
-        super.onDestroyView();
-        if (mapView!=null)
-            mapView.onDestroy();
+        try {
+            super.onDestroyView();
+            if (mapView!=null)
+                mapView.onDestroy();
+        }
+        catch (Exception e){
+            Log.e("onDestroyView",e.getMessage());
+        }
     }
     @Override
     public void onResume() {
-        super.onResume();
-        if (mapView!=null)
-            mapView.onResume();
+        try {
+            super.onResume();
+            if (mapView!=null)
+                mapView.onResume();
+        }
+        catch (Exception e){
+            Log.e("onResume",e.getMessage());
+        }
     }
     @Override
     public void onLowMemory() {
-        super.onLowMemory();
-        if (mapView!=null)
-            mapView.onLowMemory();
+       try {
+           super.onLowMemory();
+           if (mapView!=null)
+               mapView.onLowMemory();
+       }
+       catch (Exception e){
+           Log.e("onLowMemory",e.getMessage());
+       }
     }
     @Override
     public void onPause() {
-        super.onPause();
-        if (mapView!=null)
-            mapView.onPause();
+        try {
+            super.onPause();
+            if (mapView!=null)
+                mapView.onPause();
+        }
+        catch (Exception e){
+            Log.e("onPause",e.getMessage());
+
+        }
     }
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
-        super.onSaveInstanceState(outState);
-        if(outState!=null && mapView!=null)
-            mapView.onSaveInstanceState(outState);
+        try {
 
+            super.onSaveInstanceState(outState);
+            if(outState!=null && mapView!=null)
+                mapView.onSaveInstanceState(outState);
+        }
+        catch (Exception e){
+            Log.e("onSaveInstanceState",e.getMessage());
+        }
     }
+
+
+    /**
+     * Android konum dinlemesi ve her konum değiştiğinde ilgili personun konumunun güncellenmesi
+     */
+
     void listenAndWriteMyLocationToFirebase(){
         if (locationManager == null)
             locationManager = (LocationManager)getContext().getSystemService(Context.LOCATION_SERVICE);
@@ -463,28 +555,33 @@ public class JavaMapFragment extends Fragment {
         listener = new LocationListener() {
             @Override
             public void onLocationChanged(final Location location) {
-                setCameraPosition(location);
-                Map locationMap=new HashMap<String,Double>();
-                locationMap.put("latitude",location.getLatitude());
-                locationMap.put("longitude",location.getLongitude());
-                locationMap.put("active",true);
+               try {
+                   setCameraPosition(location);
+                   Map locationMap=new HashMap<String,Double>();
+                   locationMap.put("latitude",location.getLatitude());
+                   locationMap.put("longitude",location.getLongitude());
+                   locationMap.put("active",true);
 
 
-                OnSuccessListener success=new OnSuccessListener() {
-                    @Override
-                    public void onSuccess(Object o) {
-                        lat=location.getLatitude();
-                        lng=location.getLongitude();
-                    }
-                };
-                OnFailureListener failure=new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
+                   OnSuccessListener success=new OnSuccessListener() {
+                       @Override
+                       public void onSuccess(Object o) {
+                           lat=location.getLatitude();
+                           lng=location.getLongitude();
+                       }
+                   };
+                   OnFailureListener failure=new OnFailureListener() {
+                       @Override
+                       public void onFailure(@NonNull Exception e) {
 
-                    }
-                };
-                if (uId!=null)
-                    PersonFirebaseDAO.updatePersonField(uId,"location",locationMap,success,failure);
+                       }
+                   };
+                   if (uId!=null)
+                       PersonFirebaseDAO.updatePersonField(uId,"location",locationMap,success,failure);
+               }
+               catch (Exception e){
+                   Log.e("onLocationChanged",e.getMessage());
+               }
             }
 
             @Override
@@ -515,15 +612,25 @@ public class JavaMapFragment extends Fragment {
         }
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 0.1f, listener);
     }
+
+
+    /**
+     * Android konum dinlemesi durdurma
+     */
     void stopWritingLocationToFirebase(){
         locationManager.removeUpdates(listener);
     }
+
+
+    /**
+     * OnStopda çağrılır. Person location passive edilir böylece harita driver olarak gözükmez.
+     */
     public void doUserLocationPassive(){
         stopWritingLocationToFirebase();
         OnSuccessListener success=new OnSuccessListener() {
             @Override
             public void onSuccess(Object o) {
-                o.toString();
+
             }
         };
         OnFailureListener failure=new OnFailureListener() {
@@ -554,9 +661,9 @@ public class JavaMapFragment extends Fragment {
 
 
     /**
-     * Passenger will use
+     * Passengerın bekleyen isteklerini dinler, eğer bu istek kabul edilmişse, kabul edilmiş olan driver harita canlı olarak izlenir.
      */
-    void listenPassengerWaitingTaxiRequest(){
+    void listenWaitingTaxiRequestOfPassenger(){
 
         EventListener evntEventListener=new com.google.firebase.firestore.EventListener<QuerySnapshot>(){
             @Override
@@ -569,32 +676,27 @@ public class JavaMapFragment extends Fragment {
 
                         String status= doc.getString("status");
                         if (status.equals("accept")){
-                            map.clear();
-                            Object plocation=doc.get("location");
-                            double pLatitude=((HashMap<String,Double>)plocation).get("latitude");
-                            double pLongitude=((HashMap<String,Double>)plocation).get("longitude");
-                            map.addMarker(new MarkerOptions()
-                                    .position(new LatLng(pLatitude,pLongitude)).setTitle(doc.getString("driver_id")));
-
+                            PersonFirebaseDAO.getListenerForAllPassengersLocation().remove();
+                            listenAndFollowPersonLocation(doc.getString("driver_id"),iconDriver);
                         }
                         else
                             return;
-
-
-
-
                     }
                 }
                 catch (Exception p){
-                    p.printStackTrace();
+                    Log.e("onEvent in x",p.getMessage());
                 }
-
             }
         };
             TaxiRequestFirebaseDAO.listenPassengerWaitingTaxiRequest(evntEventListener,uId);
     }
 
-    void listenAndFollowPersonLocation(String paramUId){
+
+    /**
+     * Uıd si parametre olarak verilen personun(Driver/Passenger) konumu canlı olarak dinler ve haritada gösterir.
+     * @param paramUId
+     */
+    void listenAndFollowPersonLocation(String paramUId, final Icon icon){
 
         EventListener evntEventListener=new com.google.firebase.firestore.EventListener<DocumentSnapshot>(){
             @Override
@@ -608,15 +710,34 @@ public class JavaMapFragment extends Fragment {
                    Object plocation=documentSnapshot.get("location");
                    double pLatitude=((HashMap<String,Double>)plocation).get("latitude");
                    double pLongitude=((HashMap<String,Double>)plocation).get("longitude");
+
                    map.addMarker(new MarkerOptions()
-                           .position(new LatLng(pLatitude,pLongitude)).setTitle(documentSnapshot.getString("fullName")));
+                           .position(new LatLng(pLatitude,pLongitude)).setTitle(documentSnapshot.getString("id")).setIcon(icon));
                }
                catch (Exception x){
+                   Log.e("onEvent in nAndFollowPe",x.getMessage());
                    Toast.makeText(getContext(),x.getMessage(),Toast.LENGTH_LONG).show();
                }
-
             }
         };
         TaxiRequestFirebaseDAO.listenAndFollowPersonLocation(evntEventListener,paramUId);
+    }
+
+    void isExistPassenger(){
+
+        OnCompleteListener listener= new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+
+                if(task.getResult().getDocuments().size()!=0){
+                    listenAndFollowPersonLocation(task.getResult().getDocuments().get(0).getString("passenger_id"),iconPassenger);
+
+                }
+
+            }
+        };
+
+        TaxiRequestFirebaseDAO.isDriverAvaible(uId,listener);
+
     }
 }
