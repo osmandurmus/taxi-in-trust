@@ -5,11 +5,9 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.ListenerRegistration;
-import com.google.firebase.firestore.Source;
 
 import java.util.Map;
 
@@ -33,6 +31,12 @@ public class TaxiRequestFirebaseDAO {
     private static ListenerRegistration listenerComingTaxiRequestForDriver;
     private static ListenerRegistration listenerAlreadyTaxiRequestForPassenger;
     private static ListenerRegistration listenerForPersonLocation;
+
+    public static ListenerRegistration getListenerForTaxiRequestDocument() {
+        return listenerForTaxiRequestDocument;
+    }
+
+    private static ListenerRegistration listenerForTaxiRequestDocument;
     public static void newTaxiCall(Object data, OnSuccessListener<Void> success, OnFailureListener failure){
         try{
             DocumentReference docRef = db.collection("taxi_request").document();
@@ -83,6 +87,11 @@ public class TaxiRequestFirebaseDAO {
     public static void listenAndFollowPersonLocation(EventListener listener, String uId){
          listenerForPersonLocation= db.collection("person").document(uId).addSnapshotListener(listener);
     }
+
+    public static void listenTaxiRequestDocument(EventListener listener, String docId){
+        listenerForTaxiRequestDocument= db.collection("taxi_request").document(docId).addSnapshotListener(listener);
+    }
+
 
     public static void isDriverAvaible(String Uid, OnCompleteListener onCompleteListener){
         db.collection("taxi_request").whereEqualTo("driver_id",Uid).whereEqualTo("status","accept").get().addOnCompleteListener(onCompleteListener);

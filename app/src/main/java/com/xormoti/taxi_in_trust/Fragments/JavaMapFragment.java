@@ -48,6 +48,7 @@ import com.xormoti.taxi_in_trust.FireBaseTask.CollectionData.Location_;
 import com.xormoti.taxi_in_trust.FireBaseTask.CollectionData.PersonFirebaseDAO;
 import com.xormoti.taxi_in_trust.FireBaseTask.CollectionData.Person_;
 import com.xormoti.taxi_in_trust.FireBaseTask.CollectionData.TaxiRequestFirebaseDAO;
+import com.xormoti.taxi_in_trust.MainFlow;
 import com.xormoti.taxi_in_trust.R;
 
 import java.util.ArrayList;
@@ -55,7 +56,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class JavaMapFragment extends Fragment {
-    private ArrayList<Person_> persons;
+
     private String uId;
     private MapboxMap map;
     private MapView mapView;
@@ -67,6 +68,7 @@ public class JavaMapFragment extends Fragment {
     private CameraPosition position;
     private Icon iconDriver;
     private Icon iconPassenger;
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -104,6 +106,7 @@ public class JavaMapFragment extends Fragment {
                 map=mapboxMap;
                 mapboxMap.setStyle(Style.MAPBOX_STREETS);
 
+
                 map.setOnMarkerClickListener(new MapboxMap.OnMarkerClickListener() {
                     @Override
                     public boolean onMarkerClick(@NonNull Marker marker) {
@@ -136,6 +139,7 @@ public class JavaMapFragment extends Fragment {
     /**
      * Active Driverlerin passengerlra haritada gösterilmesi sağlar. canlı
      */
+    //DONE
     void listenUserLocationsInFirebase(){
 
         EventListener evntEventListener=new com.google.firebase.firestore.EventListener<QuerySnapshot>(){
@@ -146,8 +150,6 @@ public class JavaMapFragment extends Fragment {
                         return;
                 }
 
-
-                    persons =new ArrayList<Person_>();
                     map.clear(); //Haritanın temizlenmesi
                     for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
 
@@ -167,7 +169,6 @@ public class JavaMapFragment extends Fragment {
                                 .position(new LatLng(pLatitude,pLongitude))
                                 .title(doc.getId()).setIcon(iconDriver));
 
-                        persons.add(person_);
                     }
                 }
                 catch (Exception p){
@@ -185,6 +186,7 @@ public class JavaMapFragment extends Fragment {
     /**
      * Driver tarafından kullanılır. Kendisine gelen taxi requestleri dinler.
      */
+    //DONE
     void listenForRealtimeTaxiRequest(){
         EventListener evntEventListener=new com.google.firebase.firestore.EventListener<QuerySnapshot>(){
             @Override
