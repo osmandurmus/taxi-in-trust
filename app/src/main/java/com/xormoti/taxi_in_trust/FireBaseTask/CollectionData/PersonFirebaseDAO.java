@@ -14,6 +14,8 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.xormoti.taxi_in_trust.Fragments.LoginFragment;
 
+import java.util.Map;
+
 public class PersonFirebaseDAO {
 
     private static FirebaseFirestore db=FirebaseFirestore.getInstance();
@@ -32,8 +34,16 @@ public class PersonFirebaseDAO {
     public static void getUser(String Uid, OnSuccessListener<DocumentSnapshot> success,OnFailureListener failure){
         DocumentReference docRef = db.collection("person").document(Uid);
         docRef.get().addOnSuccessListener(success).addOnFailureListener(failure);
-
     }
+    public static void updateUserFields(String uId, Map map, OnSuccessListener<Void> success, OnFailureListener failure){
+        DocumentReference docRef = db.collection("person").document(uId);
+        docRef
+                .update(map)
+                .addOnSuccessListener(success)
+                .addOnFailureListener(failure);
+    }
+
+
     public static void updatePersonField(String Uid,String field,Object value,OnSuccessListener<Void> success,OnFailureListener failure){
         DocumentReference docRef = db.collection("person").document(Uid);
         docRef

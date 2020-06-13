@@ -18,7 +18,11 @@ app:startDestination="@id/entryFragment">
         android:id="@+id/mapFragment"
         android:name="com.xormoti.taxi_in_trust.Fragments.NewMapFragment"
         android:label="Harita"
-        tools:layout="@layout/fragment_map" />
+        tools:layout="@layout/fragment_map" >
+    <action
+            android:id="@+id/action_mapFragment_to_taxiRequestFragmnet"
+            app:destination="@id/taxiRequestFragmnet" />
+</fragment>
 <fragment
         android:id="@+id/entryFragment"
         android:name="com.xormoti.taxi_in_trust.Fragments.EntryFragment"
@@ -28,4 +32,9 @@ app:startDestination="@id/entryFragment">
             android:id="@+id/action_entryFragment_to_loginFragment"
             app:destination="@id/loginFragment" />
 </fragment>
+    <fragment
+            android:id="@+id/taxiRequestFragmnet"
+            android:name="com.xormoti.taxi_in_trust.Fragments.TaxiRequestFragment"
+            android:label="Taxi İstekleri"
+            tools:layout="@layout/fragment_taxi_request" />
 </navigation>

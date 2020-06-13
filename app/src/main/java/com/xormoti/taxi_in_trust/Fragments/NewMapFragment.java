@@ -16,6 +16,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.Navigation;
 
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -27,6 +28,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestoreException;
@@ -66,6 +68,7 @@ public class NewMapFragment extends Fragment {
     private double lng;
     private CameraPosition position;
     MainFlow mainFlow;
+    FloatingActionButton floatingActionButton;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -89,6 +92,7 @@ public class NewMapFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view=inflater.inflate(R.layout.fragment_map,container,false);
         mapView=view.findViewById(R.id.mapView);
+        floatingActionButton=view.findViewById(R.id.fab_taxi_request);
         return view;
     }
 
@@ -128,6 +132,14 @@ public class NewMapFragment extends Fragment {
 
                 });
 
+            }
+        });
+        floatingActionButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Bundle args=new Bundle();
+                args.putString("uid",uId);
+                Navigation.findNavController(v).navigate(R.id.action_mapFragment_to_taxiRequestFragmnet,args);
             }
         });
     }

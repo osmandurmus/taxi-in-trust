@@ -134,6 +134,8 @@ public class JavaMapFragment extends Fragment {
         });
         checkUserNotPassengerAndDriver();
 
+
+
     }
 
     /**

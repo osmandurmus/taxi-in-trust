@@ -70,6 +70,11 @@ public class TaxiRequestFirebaseDAO {
                 .addOnFailureListener(failure);
     }
 
+    public static void deleteTaxiRequest(String docId, OnSuccessListener<Void> success,OnFailureListener failureListener){
+        db.collection("taxi_request").document(docId).delete().addOnSuccessListener(success).addOnFailureListener(failureListener);
+    }
+
+
     /**
      * Passengers listen their taxş taxi-request whether it is accepted.
      * When driver accepted, passenger's request.
@@ -91,9 +96,10 @@ public class TaxiRequestFirebaseDAO {
     public static void listenTaxiRequestDocument(EventListener listener, String docId){
         listenerForTaxiRequestDocument= db.collection("taxi_request").document(docId).addSnapshotListener(listener);
     }
-
-
     public static void isDriverAvaible(String Uid, OnCompleteListener onCompleteListener){
         db.collection("taxi_request").whereEqualTo("driver_id",Uid).whereEqualTo("status","accept").get().addOnCompleteListener(onCompleteListener);
+    }
+    public static void getTaxiRequests(String uId,String status, OnCompleteListener onCompleteListener){
+        db.collection("taxi_request").whereEqualTo("passenger_id",uId).whereEqualTo("status",status).get().addOnCompleteListener(onCompleteListener);
     }
 }

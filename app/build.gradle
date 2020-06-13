@@ -22,6 +22,9 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+    viewBinding {
+        enabled = true
+    }
 }
 
 dependencies {
@@ -49,6 +52,8 @@ dependencies {
     implementation 'com.google.firebase:firebase-firestore:21.4.3'
     implementation 'com.firebaseui:firebase-ui-auth:6.2.0'
     implementation 'com.google.android.gms:play-services-auth:18.0.0'
+    implementation 'com.stepstone.apprating:app-rating:2.3.1'
+
     androidTestImplementation "androidx.navigation:navigation-testing:$nav_version"
     testImplementation 'junit:junit:4.13'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
