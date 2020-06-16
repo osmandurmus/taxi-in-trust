@@ -345,5 +345,4 @@ public class NewMapFragment extends Fragment {
             return;
         mainFlow.getMap().animateCamera(CameraUpdateFactory.newCameraPosition(position), 2000);
     }
-
 }

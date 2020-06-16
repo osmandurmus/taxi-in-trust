@@ -3,6 +3,7 @@ package com.xormoti.taxi_in_trust;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.os.Looper;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -26,6 +27,8 @@ import com.xormoti.taxi_in_trust.FireBaseTask.CollectionData.PersonFirebaseDAO;
 import com.xormoti.taxi_in_trust.FireBaseTask.CollectionData.Person_;
 import com.xormoti.taxi_in_trust.FireBaseTask.CollectionData.TaxiRequestFirebaseDAO;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.logging.Handler;
 
 public class PassengerFlow {
 
@@ -36,6 +39,12 @@ public class PassengerFlow {
     private MapboxMap map;
     private String uId;
 
+    public Map<String, DocumentSnapshot> getDriverOnMapHashMap() {
+        return driverOnMapHashMap;
+    }
+
+    private Map<String,DocumentSnapshot> driverOnMapHashMap;
+
     PassengerFlow(Context context, MapboxMap map, String uId){
         this.context=context;
         this.map=map;
@@ -44,6 +53,7 @@ public class PassengerFlow {
         iconDriver = iconFactory.fromResource(R.mipmap.ic_taxi);
         iconPassenger = iconFactory.fromResource(R.mipmap.ic_passenger);
         iconDriverYellow=iconFactory.fromResource(R.mipmap.ic_passenger_yellow_round);
+        driverOnMapHashMap=new HashMap<>();
     }
     public void start(){
         listenWaitingTaxiRequestOfPassenger();
@@ -64,6 +74,7 @@ public class PassengerFlow {
                     }
 
                     map.clear(); //Haritanın temizlenmesi
+                    driverOnMapHashMap.clear();
                     for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
 
                         boolean pdriver=doc.getBoolean("driver");
@@ -77,6 +88,8 @@ public class PassengerFlow {
                         Person_ person_=new Person_(pid,pfullName,pdriver,ppassenger);
                         Location_ location_=new Location_(pLatitude,pLongitude);
                         person_.setLocation(location_);
+
+                        driverOnMapHashMap.put(pid,doc);
 
                         map.addMarker(new MarkerOptions()
                                 .position(new LatLng(pLatitude,pLongitude))
@@ -102,8 +115,19 @@ public class PassengerFlow {
         // Set the alert dialog title
         builder.setTitle("Taxi Çağırma");
 
+        String fullName= driverOnMapHashMap.get(driverId).getString("fullName");
+        Object o= driverOnMapHashMap.get(driverId).get("score");
+        int score;
+
+        if (o==null){
+            score=0;
+        }
+        else {
+            score= ((Long)o).intValue();
+        }
+
         // Display a message on alert dialog
-        builder.setMessage("Seçtiğiniz sürücüyü çağırmak istiyor musunuz?");
+        builder.setMessage(String.format("%s isimli taxi sürücüsünü çağırmak istiyor musunuz? \n Güncel puan: %d",fullName,score));
         builder.setCancelable(false);
         // Set a positive button and its click listener on alert dialog
         builder.setPositiveButton("Evet", new DialogInterface.OnClickListener() {
@@ -181,13 +205,15 @@ public class PassengerFlow {
                     }
                 }
                 catch (Exception p){
-                    Log.e("onEvent in x",p.getMessage());
+                    Log.i("onEvent in x",p.getMessage());
                 }
             }
         };
         TaxiRequestFirebaseDAO.listenPassengerWaitingTaxiRequest(evntEventListener,uId);
     }
     void listenAndFollowPersonLocation(String paramUId, final Icon icon){
+
+        map.clear();
 
         EventListener evntEventListener=new com.google.firebase.firestore.EventListener<DocumentSnapshot>(){
             @Override
