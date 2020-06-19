@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -25,6 +26,7 @@ import com.mapbox.mapboxsdk.annotations.MarkerOptions;
 import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.xormoti.taxi_in_trust.FireBaseTask.CollectionData.TaxiRequestFirebaseDAO;
+import com.xormoti.taxi_in_trust.Fragments.LoginFragment;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -36,7 +38,7 @@ public class DriverFlow {
     private Context context;
     private MapboxMap map;
     private String uId;
-
+    SharedPreferences sharedPreferences;
 
     DriverFlow(Context context, MapboxMap map, String uId){
         this.context=context;
@@ -44,6 +46,7 @@ public class DriverFlow {
         IconFactory iconFactory = IconFactory.getInstance(context);
         iconDriver = iconFactory.fromResource(R.mipmap.ic_taxi);
         iconPassenger = iconFactory.fromResource(R.mipmap.ic_passenger);
+        sharedPreferences= context.getSharedPreferences(LoginFragment.sharedtaxiintrust,Context.MODE_PRIVATE);
         this.uId=uId;
     }
     public void start(){
@@ -69,12 +72,13 @@ public class DriverFlow {
 
                                 HashMap<String,String> paramas=new HashMap<>();
                                 paramas.put("status", "accept");
+                                paramas.put("driver_name",sharedPreferences.getString("full_name","İsim bilinmiyor."));
+
 
                                 OnSuccessListener successListener=new OnSuccessListener() {
                                     @Override
                                     public void onSuccess(Object o) {
-
-
+                                        dialog.dismiss();
                                         Toast.makeText(context,"BAŞARILI",Toast.LENGTH_LONG).show();
                                         isExistPassenger();
                                     }
@@ -82,11 +86,11 @@ public class DriverFlow {
                                 OnFailureListener failureListener=new OnFailureListener() {
                                     @Override
                                     public void onFailure(@NonNull Exception e) {
+                                        dialog.dismiss();
                                         Toast.makeText(context,"BAŞARISIZ",Toast.LENGTH_SHORT).show();
                                     }
                                 };
                                 TaxiRequestFirebaseDAO.updateTaxiRequest(doc.getId(),paramas,successListener,failureListener);
-                                dialog.dismiss();
                             }
                         });
                         builder.setNegativeButton("REDDET", new DialogInterface.OnClickListener() {
@@ -95,11 +99,13 @@ public class DriverFlow {
 
                                 HashMap<String,String> paramas=new HashMap<>();
                                 paramas.put("status", "cancel");
+                                paramas.put("driver_name",sharedPreferences.getString("full_name","İsim bilinmiyor."));
 
                                 OnSuccessListener successListener=new OnSuccessListener() {
                                     @Override
                                     public void onSuccess(Object o) {
                                         Toast.makeText(context,"BAŞARILI",Toast.LENGTH_LONG).show();
+                                        dialog.dismiss();
 
                                     }
                                 };
@@ -107,10 +113,11 @@ public class DriverFlow {
                                     @Override
                                     public void onFailure(@NonNull Exception e) {
                                         Toast.makeText(context,"BAŞARISIZ",Toast.LENGTH_SHORT).show();
+                                        dialog.dismiss();
                                     }
                                 };
                                 TaxiRequestFirebaseDAO.updateTaxiRequest(doc.getId(),paramas,successListener,failureListener);
-                                dialog.dismiss();
+
                             }
                         });
                         builder.create().show();

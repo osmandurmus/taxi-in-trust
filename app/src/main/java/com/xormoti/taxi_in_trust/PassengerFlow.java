@@ -3,6 +3,7 @@ package com.xormoti.taxi_in_trust;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.os.Looper;
 import android.util.Log;
 import android.widget.Toast;
@@ -26,6 +27,8 @@ import com.xormoti.taxi_in_trust.FireBaseTask.CollectionData.Location_;
 import com.xormoti.taxi_in_trust.FireBaseTask.CollectionData.PersonFirebaseDAO;
 import com.xormoti.taxi_in_trust.FireBaseTask.CollectionData.Person_;
 import com.xormoti.taxi_in_trust.FireBaseTask.CollectionData.TaxiRequestFirebaseDAO;
+import com.xormoti.taxi_in_trust.Fragments.LoginFragment;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Handler;
@@ -38,6 +41,8 @@ public class PassengerFlow {
     private Context context;
     private MapboxMap map;
     private String uId;
+    SharedPreferences sharedPreferences;
+
 
     public Map<String, DocumentSnapshot> getDriverOnMapHashMap() {
         return driverOnMapHashMap;
@@ -54,6 +59,8 @@ public class PassengerFlow {
         iconPassenger = iconFactory.fromResource(R.mipmap.ic_passenger);
         iconDriverYellow=iconFactory.fromResource(R.mipmap.ic_passenger_yellow_round);
         driverOnMapHashMap=new HashMap<>();
+        sharedPreferences= context.getSharedPreferences(LoginFragment.sharedtaxiintrust,Context.MODE_PRIVATE);
+
     }
     public void start(){
         listenWaitingTaxiRequestOfPassenger();
@@ -115,7 +122,7 @@ public class PassengerFlow {
         // Set the alert dialog title
         builder.setTitle("Taxi Çağırma");
 
-        String fullName= driverOnMapHashMap.get(driverId).getString("fullName");
+        final String fullName= driverOnMapHashMap.get(driverId).getString("fullName");
         Object o= driverOnMapHashMap.get(driverId).get("score");
         int score;
 
@@ -164,6 +171,9 @@ public class PassengerFlow {
 
                 hashMap.put("passenger_location",passengerLocation);
                 hashMap.put("driver_location",driverLocation);
+                hashMap.put("passenger_name",sharedPreferences.getString("full_name","İsim bilinmiyor."));
+                hashMap.put("driver_name",fullName);
+
 
                 TaxiRequestFirebaseDAO.newTaxiCall(hashMap,successListener,failureListener);
 
@@ -177,6 +187,25 @@ public class PassengerFlow {
             }
         });
         builder.create().show();
+    }
+
+   public void stopFirebaseListeners(){
+        try{
+            if (TaxiRequestFirebaseDAO.getListenerAlreadyTaxiRequestForPassenger()!=null)
+            TaxiRequestFirebaseDAO.getListenerAlreadyTaxiRequestForPassenger().remove();
+
+            if ( PersonFirebaseDAO.getListenerForAllPassengersLocation()!=null)
+                PersonFirebaseDAO.getListenerForAllPassengersLocation().remove();
+
+            if (TaxiRequestFirebaseDAO.getListenerForPersonLocation()!=null)
+                TaxiRequestFirebaseDAO.getListenerForPersonLocation().remove();
+
+            if (TaxiRequestFirebaseDAO.getListenerForTaxiRequestDocument()!=null)
+            TaxiRequestFirebaseDAO.getListenerForTaxiRequestDocument().remove();
+
+        }catch (Exception e){
+
+        }
     }
 
     /**

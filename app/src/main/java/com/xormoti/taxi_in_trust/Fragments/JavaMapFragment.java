@@ -634,7 +634,7 @@ public class JavaMapFragment extends Fragment {
         OnSuccessListener success=new OnSuccessListener() {
             @Override
             public void onSuccess(Object o) {
-
+                o.toString();
             }
         };
         OnFailureListener failure=new OnFailureListener() {

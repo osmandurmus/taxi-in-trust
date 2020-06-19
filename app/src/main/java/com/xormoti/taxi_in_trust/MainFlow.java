@@ -6,12 +6,14 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.util.Log;
+import android.view.View;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.xormoti.taxi_in_trust.FireBaseTask.CollectionData.PersonFirebaseDAO;
@@ -20,6 +22,7 @@ public class MainFlow {
 
     SharedPreferences sharedPreferences;
     String uId;
+    FloatingActionButton floatingActionButton;
 
     public DriverFlow getDriverObject() {
         return driverObject;
@@ -27,6 +30,10 @@ public class MainFlow {
 
     public PassengerFlow getPassengerObject() {
         return passengerObject;
+    }
+
+    public void setFloatingActionButton(FloatingActionButton floatingActionButton) {
+        this.floatingActionButton = floatingActionButton;
     }
 
     DriverFlow driverObject;
@@ -82,16 +89,21 @@ public class MainFlow {
                     DocumentSnapshot doc=(DocumentSnapshot) o;
                     boolean  driver= doc.getBoolean("driver");
                     boolean passenger=doc.getBoolean("passenger");
+                    String fullname=doc.getString("fullName");
+                    sharedPreferences.edit().putString("full_name",fullname).commit();
+
                     if (driver==false && passenger==false) //Henüz kullanıcı durumunu belli etmediyse
                     {
                         userTypeSelection();
                     }
                     else{
                         if (driver){
+                            floatingActionButton.hide();
                             driverObject=new DriverFlow(context,map,uId);
                             driverObject.start();
                         }
                         else if (passenger){
+                            floatingActionButton.show();
                             passengerObject=new PassengerFlow(context,map,uId);
                             passengerObject.start();
                         }
@@ -141,6 +153,7 @@ public class MainFlow {
                         sharedPreferences.edit().putString("state","driver").commit();
                         driverObject=new DriverFlow(context,map,uId);
                         driverObject.start();
+                        floatingActionButton.hide();
                     }
                 };
 
@@ -166,6 +179,7 @@ public class MainFlow {
                         sharedPreferences.edit().putString("state","passenger").commit();
                         passengerObject=new PassengerFlow(context,map,uId);
                         passengerObject.start();
+                        floatingActionButton.show();
                     }
                 };
 

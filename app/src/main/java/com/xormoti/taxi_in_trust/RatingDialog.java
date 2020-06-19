@@ -27,12 +27,14 @@ public class RatingDialog extends Dialog {
     int rate=3;
     int driverOldScore =-1;
     String documentID;
+    String pDocumentIDList;
     Map<String,Object> documentMap;
-    public RatingDialog(@NonNull Context context, ArrayAdapter<String> parrayAdapter, Map<String,Object> pdocumentMap,String pDocumentID) {
+    public RatingDialog(@NonNull Context context, ArrayAdapter<String> parrayAdapter, Map<String,Object> pdocumentMap,String pDocumentID,String pDocumentIdList) {
         super(context);
         this.arrayAdapter=parrayAdapter;
         documentMap=pdocumentMap;
         this.documentID=pDocumentID;
+        this.pDocumentIDList=pDocumentIdList;
     }
 
     @Override
@@ -45,43 +47,55 @@ public class RatingDialog extends Dialog {
         binding.puanla.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String driverId= ((String)documentMap.get("driver_id"));
 
-                int newScore=(rate+ driverOldScore)/2;
-                Map<String,Integer> map=new HashMap<>();
-                map.put("score",newScore);
+                try {
+                    String driverId= ((String)documentMap.get("driver_id"));
 
-                OnSuccessListener successListener=new OnSuccessListener() {
-                    @Override
-                    public void onSuccess(Object o) {
+                    int newScore=(rate+ driverOldScore)/2;
+                    Map<String,Integer> map=new HashMap<>();
+                    map.put("score",newScore);
 
-                        OnSuccessListener successListener=new OnSuccessListener() {
-                            @Override
-                            public void onSuccess(Object o) {
-                                Toast.makeText(getContext(),"Score Güncellendi.",Toast.LENGTH_LONG).show();
-                                arrayAdapter.remove(arrayAdapter.getItem(arrayAdapter.getPosition(documentID)));
-                                arrayAdapter.notifyDataSetChanged();
-                                dismiss();
-                            }
-                        };
-                        OnFailureListener failureListener=new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-                                Toast.makeText(getContext(),"Failure:deleteTaxiRequest",Toast.LENGTH_LONG).show();
+                    OnSuccessListener successListener=new OnSuccessListener() {
+                        @Override
+                        public void onSuccess(Object o) {
 
-                            }
-                        };
-                        TaxiRequestFirebaseDAO.deleteTaxiRequest(documentID,successListener,failureListener);
-                    }
-                };
-                OnFailureListener failureListener=new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Toast.makeText(getContext(),"Güncellenemedi",Toast.LENGTH_LONG).show();
-                    }
-                };
+                            OnSuccessListener successListener=new OnSuccessListener() {
+                                @Override
+                                public void onSuccess(Object o) {
+                                   try {
+                                       Toast.makeText(getContext(),"Score Güncellendi.",Toast.LENGTH_LONG).show();
+                                       arrayAdapter.remove(arrayAdapter.getItem(arrayAdapter.getPosition(pDocumentIDList)));
+                                       arrayAdapter.notifyDataSetChanged();
+                                       dismiss();
+                                   }
+                                   catch (Exception e){
+                                       Toast.makeText(getContext(),e.toString(),Toast.LENGTH_LONG).show();
 
-                PersonFirebaseDAO.updateUserFields(driverId,map,successListener,failureListener);
+                                   }
+                                }
+                            };
+                            OnFailureListener failureListener=new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    Toast.makeText(getContext(),"Failure:deleteTaxiRequest",Toast.LENGTH_LONG).show();
+
+                                }
+                            };
+                            TaxiRequestFirebaseDAO.deleteTaxiRequest(documentID,successListener,failureListener);
+                        }
+                    };
+                    OnFailureListener failureListener=new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Toast.makeText(getContext(),"Güncellenemedi",Toast.LENGTH_LONG).show();
+                        }
+                    };
+
+                    PersonFirebaseDAO.updateUserFields(driverId,map,successListener,failureListener);
+                }
+                catch (Exception e){
+                    Toast.makeText(getContext(),e.toString(),Toast.LENGTH_LONG).show();
+                }
 
             }
         });

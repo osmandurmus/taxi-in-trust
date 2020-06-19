@@ -59,6 +59,7 @@ import java.util.Map;
 
 public class NewMapFragment extends Fragment {
 
+    private View view;
     private String uId;
     private MapView mapView;
     private SharedPreferences sharedPreferences;
@@ -70,17 +71,29 @@ public class NewMapFragment extends Fragment {
     MainFlow mainFlow;
     FloatingActionButton floatingActionButton;
 
+    private void load(MapboxMap mapboxMap){
+        mainFlow=new MainFlow();
+        mainFlow.setuId(uId);
+        mainFlow.setContext(getContext());
+        mainFlow.setSharedPreferences(sharedPreferences);
+        mapboxMap.setStyle(Style.MAPBOX_STREETS);
+        mainFlow.setMap(mapboxMap);
+        mainFlow.setFloatingActionButton(floatingActionButton);
+        mainFlow.start();
+    }
+
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         try {
-            mainFlow=new MainFlow();
+            //mainFlow=new MainFlow();
             Mapbox.getInstance(getContext(),getString(R.string.mapbox_access_token));
             sharedPreferences=getContext().getSharedPreferences(LoginFragment.sharedtaxiintrust,Context.MODE_PRIVATE);
             uId= sharedPreferences.getString("uid",null);
-            mainFlow.setuId(uId);
+            /*mainFlow.setuId(uId);
             mainFlow.setContext(getContext());
-            mainFlow.setSharedPreferences(sharedPreferences);
+            mainFlow.setSharedPreferences(sharedPreferences);*/
         }
         catch (Exception e){
             Log.e("onCreate",e.getMessage());
@@ -90,7 +103,8 @@ public class NewMapFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view=inflater.inflate(R.layout.fragment_map,container,false);
+
+        view=inflater.inflate(R.layout.fragment_map,container,false);
         mapView=view.findViewById(R.id.mapView);
         floatingActionButton=view.findViewById(R.id.fab_taxi_request);
         return view;
@@ -103,9 +117,8 @@ public class NewMapFragment extends Fragment {
         mapView.getMapAsync(new OnMapReadyCallback() {
             @Override
             public void onMapReady(@NonNull MapboxMap mapboxMap) {
-                mapboxMap.setStyle(Style.MAPBOX_STREETS);
-                mainFlow.setMap(mapboxMap);
-                mainFlow.start();
+
+                load(mapboxMap);
 
                 mapboxMap.setOnMarkerClickListener(new MapboxMap.OnMarkerClickListener() {
                     @Override
@@ -119,6 +132,7 @@ public class NewMapFragment extends Fragment {
                                 mainFlow.getDriverObject().showTaxiRequestDialog(keyVal,marker.getTitle());
                                 return false;
                             }
+                            else if (state.equals("passenger"))
                             mainFlow.getPassengerObject().doTaxiCall(marker.getTitle(),"wait",marker.getPosition(),lat,lng); //Hairta tıklaması sonucu. TAxi Çağırma dialoğu açılır.
 
                             return true;
@@ -165,6 +179,9 @@ public class NewMapFragment extends Fragment {
     public void onStop() {
         try {
             super.onStop();
+            if (mainFlow.getPassengerObject()!=null)
+            mainFlow.getPassengerObject().stopFirebaseListeners();
+
             if (mapView!=null)
                 mapView.onStop();
         }

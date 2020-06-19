@@ -15,13 +15,11 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.stepstone.apprating.AppRatingDialog;
 import com.xormoti.taxi_in_trust.FireBaseTask.CollectionData.TaxiRequestFirebaseDAO;
 import com.xormoti.taxi_in_trust.R;
 import com.xormoti.taxi_in_trust.RatingDialog;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,18 +27,22 @@ import java.util.Map;
 
 public class TaxiRequestFragment extends ListFragment {
 
+
     ArrayAdapter<String> arrayAdapter;
-    List<String> driverList;
+    List<String> docIdList;
     String uId;
     HashMap<String, Map<String,Object>> documentMap;
+    private Map<String,String> driverMap;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        driverList=new ArrayList<>();
+        docIdList =new ArrayList<>();
         uId= getArguments().getString("uid");
         documentMap=new HashMap<>();
+        driverMap=new HashMap<>();
+
     }
 
     @Override
@@ -63,10 +65,12 @@ public class TaxiRequestFragment extends ListFragment {
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful()) {
                     for (QueryDocumentSnapshot document : task.getResult()) {
-                        driverList.add(document.getId());
+
+                        String showText=String.format("Taxi Sürücüsü:%s \n:",document.getString("driver_name"));
+                        docIdList.add(showText+"\n;"+ document.getId());
                         documentMap.put(document.getId(),document.getData());
                     }
-                    arrayAdapter=new ArrayAdapter<String>(getContext(),R.layout.support_simple_spinner_dropdown_item,driverList);
+                    arrayAdapter=new ArrayAdapter<String>(getContext(),R.layout.support_simple_spinner_dropdown_item, docIdList);
                     setListAdapter(arrayAdapter);
                 } else {
                     //Log.d(TAG, "Error getting documents: ", task.getException());
@@ -75,11 +79,12 @@ public class TaxiRequestFragment extends ListFragment {
         });
     }
 
+
     @Override
     public void onListItemClick(@NonNull ListView l, @NonNull View v, int position, long id) {
         super.onListItemClick(l, v, position, id);
-        String documentID=(String)l.getAdapter().getItem(position);
-        RatingDialog ratingDialog=new RatingDialog(getContext(),arrayAdapter,documentMap.get(documentID),documentID);
+        String documentID=((String)l.getAdapter().getItem(position)).split(";")[1];
+        RatingDialog ratingDialog=new RatingDialog(getContext(),arrayAdapter,documentMap.get(documentID),documentID,((String)l.getAdapter().getItem(position)));
         ratingDialog.show();
     }
 }
