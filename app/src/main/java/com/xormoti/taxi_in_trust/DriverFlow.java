@@ -212,10 +212,10 @@ public class DriverFlow {
         AlertDialog.Builder builder =new AlertDialog.Builder(context);
 
         // Set the alert dialog title
-        builder.setTitle("İstek Sonlandır");
+        builder.setTitle("Seyahati Sonlandır");
 
         // Display a message on alert dialog
-        builder.setMessage("Taxi isteğini sonlandırmak istiyor musunuz?");
+        builder.setMessage("Seyahati sonlandırmak istiyor musunuz?");
 
 
         builder.setPositiveButton("Evet", new DialogInterface.OnClickListener() {
@@ -228,9 +228,5 @@ public class DriverFlow {
         Dialog dialog= builder.create();
         dialog.show();
     }
-
-
-
-
 
 }

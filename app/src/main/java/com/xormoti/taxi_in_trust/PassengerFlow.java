@@ -43,6 +43,7 @@ public class PassengerFlow {
     private MapboxMap map;
     private String uId;
     SharedPreferences sharedPreferences;
+    TaxiCallDialog taxiCallDialog;
 
 
     public Map<String, DocumentSnapshot> getDriverOnMapHashMap() {
@@ -135,7 +136,11 @@ public class PassengerFlow {
             score= ((Long)o).intValue();
         }
 
-        // Display a message on alert dialog
+        taxiCallDialog=new TaxiCallDialog(context,driverId,requestStatus,driverLatLng,lat,lng,score,fullName,uId,sharedPreferences);
+        taxiCallDialog.show();
+
+
+        /*// Display a message on alert dialog
         builder.setMessage(String.format("%s isimli taksi sürücüsünü çağırmak istiyor musunuz? \n Sürücünün Puanı: %d",fullName,score));
         builder.setCancelable(false);
         // Set a positive button and its click listener on alert dialog
@@ -188,7 +193,7 @@ public class PassengerFlow {
                 dialog.dismiss();
             }
         });
-        builder.create().show();
+        builder.create().show();*/
     }
 
    public void stopFirebaseListeners(){
