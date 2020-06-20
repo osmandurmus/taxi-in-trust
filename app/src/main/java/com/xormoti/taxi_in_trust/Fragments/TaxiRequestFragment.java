@@ -66,7 +66,7 @@ public class TaxiRequestFragment extends ListFragment {
                 if (task.isSuccessful()) {
                     for (QueryDocumentSnapshot document : task.getResult()) {
 
-                        String showText=String.format("Taxi Sürücüsü:%s \n:",document.getString("driver_name"));
+                        String showText=String.format("Taksi Sürücüsü:%s \n:",document.getString("driver_name"));
                         docIdList.add(showText+"\n;"+ document.getId());
                         documentMap.put(document.getId(),document.getData());
                     }

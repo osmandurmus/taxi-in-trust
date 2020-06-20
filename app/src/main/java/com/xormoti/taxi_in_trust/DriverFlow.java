@@ -10,6 +10,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -39,6 +40,7 @@ public class DriverFlow {
     private MapboxMap map;
     private String uId;
     SharedPreferences sharedPreferences;
+    TaxiAcceptDialog acceptDialog;
 
     DriverFlow(Context context, MapboxMap map, String uId){
         this.context=context;
@@ -50,6 +52,7 @@ public class DriverFlow {
         this.uId=uId;
     }
     public void start(){
+        ((AppCompatActivity)context).getSupportActionBar().setTitle("Sürücü Harita");
         isExistPassenger();
         listenForRealtimeTaxiRequest();
     }
@@ -63,9 +66,17 @@ public class DriverFlow {
                     }
                     for (final QueryDocumentSnapshot doc : queryDocumentSnapshots) {
 
-                        AlertDialog.Builder builder=new AlertDialog.Builder(context);
-                        builder.setTitle("TAXİ REUEST");
-                        builder.setMessage("Yeni bir İstek.");
+                        if (acceptDialog!=null && acceptDialog.isShowing()){
+                            Toast.makeText(context,"BAŞARILI",Toast.LENGTH_LONG).show();
+                            return;
+                        }
+
+                        acceptDialog=new TaxiAcceptDialog(context,doc.getId(),DriverFlow.this,sharedPreferences);
+                        acceptDialog.show();
+
+                        /*AlertDialog.Builder builder=new AlertDialog.Builder(context);
+                        builder.setTitle("TAXİ İSTEĞİ");
+                        builder.setMessage("Yeni bir taksi isteği geldi.");
                         builder.setPositiveButton("KABUL", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(final DialogInterface dialog, int which) {
@@ -120,7 +131,7 @@ public class DriverFlow {
 
                             }
                         });
-                        builder.create().show();
+                        builder.create().show();*/
                     }
                 }
                 catch (Exception p){

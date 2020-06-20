@@ -10,6 +10,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -63,6 +64,7 @@ public class PassengerFlow {
 
     }
     public void start(){
+        ((AppCompatActivity)context).getSupportActionBar().setTitle("Yolcu Harita");
         listenWaitingTaxiRequestOfPassenger();
         listenUserLocationsInFirebase(); //passenger ise driverları gösterirr haritada. //TODO
     }
@@ -120,7 +122,7 @@ public class PassengerFlow {
         AlertDialog.Builder builder =new AlertDialog.Builder(context);
 
         // Set the alert dialog title
-        builder.setTitle("Taxi Çağırma");
+        builder.setTitle("Taksi Çağırma");
 
         final String fullName= driverOnMapHashMap.get(driverId).getString("fullName");
         Object o= driverOnMapHashMap.get(driverId).get("score");
@@ -134,7 +136,7 @@ public class PassengerFlow {
         }
 
         // Display a message on alert dialog
-        builder.setMessage(String.format("%s isimli taxi sürücüsünü çağırmak istiyor musunuz? \n Güncel puan: %d",fullName,score));
+        builder.setMessage(String.format("%s isimli taksi sürücüsünü çağırmak istiyor musunuz? \n Sürücünün Puanı: %d",fullName,score));
         builder.setCancelable(false);
         // Set a positive button and its click listener on alert dialog
         builder.setPositiveButton("Evet", new DialogInterface.OnClickListener() {

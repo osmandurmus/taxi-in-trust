@@ -89,7 +89,7 @@ public class LoginFragment extends Fragment {
                 };
 
                 String uId= sharedPreferences.getString("uid",null);
-                if (uId!=null)
+                if (uId!=null && uId.equals(user.getUid()))
                     Navigation.findNavController(mainView).navigate(R.id.action_loginFragment_to_mapFragment);
                 else{
                     Person_ person_=new Person_(user);

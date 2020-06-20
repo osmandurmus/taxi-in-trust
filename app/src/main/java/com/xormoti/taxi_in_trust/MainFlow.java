@@ -101,6 +101,7 @@ public class MainFlow {
                             floatingActionButton.hide();
                             driverObject=new DriverFlow(context,map,uId);
                             driverObject.start();
+
                         }
                         else if (passenger){
                             floatingActionButton.show();
@@ -138,10 +139,10 @@ public class MainFlow {
         builder.setTitle("Kullanıcı Seçimi");
 
         // Display a message on alert dialog
-        builder.setMessage("Sürücü müsünüz?");
+        builder.setMessage("Kullanıcı seçimi yapınız?");
         builder.setCancelable(false);
         // Set a positive button and its click listener on alert dialog
-        builder.setPositiveButton("Evet", new DialogInterface.OnClickListener() {
+        builder.setPositiveButton("Taksi Sürücüsü", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(final DialogInterface dialog, int which) {
 
@@ -167,7 +168,7 @@ public class MainFlow {
             }
         });
 
-        builder.setNegativeButton("Hayır", new DialogInterface.OnClickListener() {
+        builder.setNegativeButton("Yolcu", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(final DialogInterface dialog, int which) {
 

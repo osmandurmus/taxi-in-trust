@@ -6,15 +6,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.navigation.NavController;
 import androidx.navigation.NavDestination;
 import androidx.navigation.Navigation;
-
-import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.xormoti.taxi_in_trust.Fragments.LoginFragment;
-import com.xormoti.taxi_in_trust.Services.UserLocationService;
 
 public class MainActivity extends AppCompatActivity{
 
