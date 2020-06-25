@@ -13,10 +13,10 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.497"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/surucu_ismi" />
+            app:layout_constraintTop_toBottomOf="@+id/surucuName" />
 
     <TextView
-            android:id="@+id/surucu_ismi"
+            android:id="@+id/surucuName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="2dp"
@@ -38,7 +38,7 @@
             tools:ignore="VectorDrawableCompat" />
 
     <Button
-            android:id="@+id/taxi_cagir"
+            android:id="@+id/taxiCagir"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="36dp"
@@ -49,12 +49,12 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toEndOf="@+id/taxi_iptal"
+            app:layout_constraintStart_toEndOf="@+id/taxiIptal"
             app:layout_constraintTop_toBottomOf="@+id/ratingBarSurucu"
             app:layout_constraintVertical_bias="0.0" />
 
     <Button
-            android:id="@+id/taxi_iptal"
+            android:id="@+id/taxiIptal"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="36dp"
@@ -63,7 +63,7 @@
             android:text="İPTAL"
             android:textColor="@android:color/white"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/taxi_cagir"
+            app:layout_constraintEnd_toStartOf="@+id/taxiCagir"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/ratingBarSurucu"

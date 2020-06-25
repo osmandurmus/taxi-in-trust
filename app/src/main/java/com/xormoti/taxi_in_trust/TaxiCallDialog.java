@@ -50,7 +50,7 @@ public class TaxiCallDialog extends Dialog {
         binding.ratingBarSurucu.setNumStars(5);
         binding.ratingBarSurucu.setRating(score);
         binding.ratingBarSurucu.setEnabled(false);
-        binding.surucuIsmi.setText(fullName);
+        binding.surucuName.setText(fullName);
 
         binding.taxiCagir.setOnClickListener(new View.OnClickListener() {
             @Override

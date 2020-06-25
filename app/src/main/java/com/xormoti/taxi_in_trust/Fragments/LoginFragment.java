@@ -70,35 +70,42 @@ public class LoginFragment extends Fragment {
             IdpResponse response = IdpResponse.fromResultIntent(data);
 
             if (resultCode == Activity.RESULT_OK) {
-                // Successfully signed in
-                final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-
-                OnSuccessListener successListener=new OnSuccessListener() {
-                    @Override
-                    public void onSuccess(Object o) {
-                        boolean isWritten= sharedPreferences.edit().putString("uid",user.getUid()).commit();
-                        if (isWritten)
-                        Navigation.findNavController(mainView).navigate(R.id.action_loginFragment_to_mapFragment);
-                    }
-                };
-                OnFailureListener failureListener=new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Toast.makeText(getContext(),"BAŞARISIZ:"+e.getMessage(),Toast.LENGTH_LONG).show();
-                    }
-                };
-
-                String uId= sharedPreferences.getString("uid",null);
-                if (uId!=null && uId.equals(user.getUid()))
-                    Navigation.findNavController(mainView).navigate(R.id.action_loginFragment_to_mapFragment);
-                else{
-                    Person_ person_=new Person_(user);
-                    PersonFirebaseDAO.updatePerson(person_,successListener,failureListener);
-                }
+              loginSuccess();
             } else {
-
                 Toast.makeText(getContext(),"GİRİŞ YAPILAMADI",Toast.LENGTH_LONG).show();
             }
+        }
+    }
+
+    void loginSuccess(){
+        try {
+            // Successfully signed in
+            final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
+            OnSuccessListener successListener=new OnSuccessListener() {
+                @Override
+                public void onSuccess(Object o) {
+                    boolean isWritten= sharedPreferences.edit().putString("uid",user.getUid()).commit();
+                    if (isWritten)
+                        Navigation.findNavController(mainView).navigate(R.id.action_loginFragment_to_mapFragment);
+                }
+            };
+            OnFailureListener failureListener=new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Toast.makeText(getContext(),"BAŞARISIZ:"+e.getMessage(),Toast.LENGTH_LONG).show();
+                }
+            };
+
+            String uId= sharedPreferences.getString("uid",null);
+            if (uId!=null && uId.equals(user.getUid()))
+                Navigation.findNavController(mainView).navigate(R.id.action_loginFragment_to_mapFragment);
+            else{
+                Person_ person_=new Person_(user);
+                PersonFirebaseDAO.updatePerson(person_,successListener,failureListener);
+            }
+        }catch (Exception e){
+            e.printStackTrace();
         }
     }
 }
