@@ -29,7 +29,7 @@ import com.xormoti.taxi_in_trust.R;
 import java.util.Arrays;
 import java.util.List;
 
-public class LoginFragment extends Fragment {
+public class LoginFragment extends Fragment { //Login Fragment using Firebas Auth.
 
     public static final String sharedtaxiintrust="taxi_in_trust";
     public static final int RC_SIGN_IN=10;
